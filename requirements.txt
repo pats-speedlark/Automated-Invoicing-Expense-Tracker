@@ -1,5 +1,3 @@
-</> Plain text
-
 streamlit
 pandas
 reportlab
