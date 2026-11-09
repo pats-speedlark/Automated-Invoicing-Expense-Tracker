@@ -316,13 +316,6 @@ elif page == "Create Invoice":
 
                     pdf_data = generate_invoice_pdf(invoice)
 
-                    st.download_button(
-                        "📥 Download Invoice PDF",
-                        data=pdf_data,
-                        file_name=invoice["id"] + ".pdf",
-                        mime="application/pdf"
-                    )
-
 
 # ---------------- INVOICES ----------------
 
