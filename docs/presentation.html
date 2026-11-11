@@ -1,0 +1,778 @@
+<title>Invoicing &amp; Expense Tracker Deck</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one 1280x720 stage scaled to fit the window; slides stack inside it and swap with per-slide transitions.
+   Deliberate single light look (white paper on an off-white desk) with the app's indigo and the "paid" green as accents. */
+:root {
+  --ink: #f3f4f8;
+  --panel: #ffffff;
+  --panel-2: #f7f8fc;
+  --code: #f0f1f8;
+  --line: #e1e4ef;
+  --fg: #1a1e33;
+  --muted: #5b6180;
+  --indigo: #4f46e5;
+  --indigo-deep: #4f46e5;
+  --paid: #0e9466;
+  --due: #b26a00;
+  --over: #d63c3c;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--ink); color: var(--fg); font-family: var(--font-body);
+  overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 0;
+  display: flex; flex-direction: column;
+}
+.viewport { flex: 1; min-height: 0; position: relative; display: grid; place-items: center; }
+.stage {
+  width: 1280px; height: 720px; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(var(--s, 1)); transform-origin: center;
+  perspective: 1600px;
+}
+.slide {
+  position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
+  background:
+    radial-gradient(900px 500px at 100% 0%, rgba(79,70,229,.07), transparent 60%),
+    radial-gradient(700px 420px at 0% 100%, rgba(14,148,102,.05), transparent 60%),
+    var(--panel);
+  border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(26,30,51,.08);
+  padding: 64px 76px; display: flex; flex-direction: column;
+  visibility: hidden; opacity: 0; pointer-events: none;
+}
+.slide.active { visibility: visible; opacity: 1; pointer-events: auto; z-index: 2; }
+.slide.leaving { visibility: visible; z-index: 1; animation: leave .55s ease forwards; }
+.slide.leaving.back { animation-name: leaveBack; }
+@keyframes leave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(-60px) scale(.96); } }
+@keyframes leaveBack { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(60px) scale(.96); } }
+
+/* slide entry transitions */
+.slide.active[data-t="rise"]  { animation: tRise .8s cubic-bezier(.2,.8,.2,1) both; }
+.slide.active[data-t="slide"] { animation: tSlide .75s cubic-bezier(.2,.8,.2,1) both; }
+.slide.active[data-t="zoom"]  { animation: tZoom .8s cubic-bezier(.2,.8,.2,1) both; }
+.slide.active[data-t="flip"]  { animation: tFlip .9s cubic-bezier(.2,.8,.2,1) both; transform-origin: left center; }
+.slide.active[data-t="wipe"]  { animation: tWipe .9s cubic-bezier(.7,0,.2,1) both; }
+.slide.active[data-t="blur"]  { animation: tBlur .8s ease both; }
+.slide.active[data-t="circle"]{ animation: tCircle 1s cubic-bezier(.7,0,.2,1) both; }
+.slide.active[data-t="cube"]  { animation: tCube .9s cubic-bezier(.2,.8,.2,1) both; transform-origin: right center; }
+.back.slide.active[data-t] { animation-name: tSlideBack; animation-duration: .7s; }
+@keyframes tRise  { from { opacity: 0; transform: translateY(70px); } to { opacity: 1; transform: none; } }
+@keyframes tSlide { from { opacity: 0; transform: translateX(140px); } to { opacity: 1; transform: none; } }
+@keyframes tSlideBack { from { opacity: 0; transform: translateX(-140px); } to { opacity: 1; transform: none; } }
+@keyframes tZoom  { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: none; } }
+@keyframes tFlip  { from { opacity: 0; transform: rotateY(-38deg) translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes tCube  { from { opacity: 0; transform: rotateY(32deg) translateX(-40px); } to { opacity: 1; transform: none; } }
+@keyframes tWipe  { from { clip-path: inset(0 100% 0 0 round 22px); } to { clip-path: inset(0 0 0 0 round 22px); } }
+@keyframes tBlur  { from { opacity: 0; filter: blur(18px); transform: scale(1.04); } to { opacity: 1; filter: none; transform: none; } }
+@keyframes tCircle{ from { clip-path: circle(0% at 50% 50%); } to { clip-path: circle(80% at 50% 50%); } }
+
+/* element animations: run each time the slide becomes active */
+.a { --d: 0s; }
+.active .a { animation-duration: .7s; animation-timing-function: cubic-bezier(.2,.8,.2,1); animation-fill-mode: both; animation-delay: calc(var(--d) + .25s); }
+.active .a.up    { animation-name: aUp; }
+.active .a.left  { animation-name: aLeft; }
+.active .a.right { animation-name: aRight; }
+.active .a.pop   { animation-name: aPop; animation-timing-function: cubic-bezier(.3,1.6,.5,1); }
+.active .a.fade  { animation-name: aFade; }
+.active .a.flipin{ animation-name: aFlipIn; animation-duration: .8s; }
+.active .a.grow  { animation-name: aGrow; animation-duration: 1.1s; transform-origin: left center; }
+.active .a.growv { animation-name: aGrowV; animation-duration: 1.1s; transform-origin: bottom center; }
+@keyframes aUp    { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes aLeft  { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
+@keyframes aRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes aPop   { from { opacity: 0; transform: scale(.5); } to { opacity: 1; transform: none; } }
+@keyframes aFade  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes aFlipIn{ from { opacity: 0; transform: rotateX(-80deg); } to { opacity: 1; transform: none; } }
+@keyframes aGrow  { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes aGrowV { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+/* type */
+.eyebrow { font-family: var(--font-display); font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--indigo); font-weight: 600; margin: 0 0 14px; }
+h1 { font-family: var(--font-display); font-size: 74px; line-height: 1.02; margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-size: 46px; line-height: 1.08; margin: 0 0 28px; letter-spacing: -.01em; text-wrap: balance; }
+h3 { font-family: var(--font-display); font-size: 21px; margin: 0 0 6px; }
+p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
+.mono { font-family: var(--font-mono); }
+.hl { color: var(--paid); }
+.hi { color: var(--indigo); }
+.slide-no { position: absolute; right: 30px; bottom: 22px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); letter-spacing: .1em; }
+
+/* title slide */
+.title-wrap { margin: auto 0; }
+.title-word { display: inline-block; }
+.active .title-word { animation: aUp .8s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * .09s + .2s); }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
+.chip { border: 1px solid var(--line); background: var(--panel-2); border-radius: 999px; padding: 8px 16px; font-size: 15px; color: var(--fg); }
+.chip b { color: var(--indigo); font-weight: 600; }
+.invoice-float { position: absolute; right: 70px; top: 120px; width: 300px; background: #ffffff; color: var(--fg); border: 1px solid var(--line); border-radius: 14px; padding: 22px; box-shadow: 0 30px 60px rgba(26,30,51,.16); transform: rotate(4deg); }
+.active .invoice-float { animation: floaty 6s ease-in-out infinite, aPop .9s cubic-bezier(.3,1.5,.5,1) both .6s; }
+@keyframes floaty { 0%,100% { translate: 0 0; } 50% { translate: 0 -12px; } }
+.invoice-float .ih { display: flex; justify-content: space-between; font-family: var(--font-display); font-weight: 700; color: var(--indigo-deep); font-size: 22px; }
+.invoice-float .row { display: flex; justify-content: space-between; font-size: 13px; padding: 7px 0; border-bottom: 1px solid #dfe2ef; color: #3b4060; }
+.invoice-float .tot { display: flex; justify-content: space-between; font-weight: 700; font-size: 17px; padding-top: 10px; color: var(--indigo-deep); }
+.stamp { position: absolute; right: -16px; bottom: -20px; background: #ffffff; border: 3px solid #0f9d68; color: #0f9d68; font-family: var(--font-display); font-weight: 700; padding: 2px 12px; border-radius: 6px; transform: rotate(-14deg); font-size: 20px; letter-spacing: .1em; }
+.active .stamp { animation: stamp .5s cubic-bezier(.3,1.8,.5,1) both 1.6s; }
+@keyframes stamp { from { opacity: 0; transform: rotate(-14deg) scale(2.4); } to { opacity: 1; transform: rotate(-14deg) scale(1); } }
+
+/* grids and cards */
+.grid { display: grid; gap: 18px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+.card p { font-size: 16px; }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.compare > div { padding: 26px 30px; }
+.compare .before { background: rgba(214,60,60,.04); }
+.compare .after { background: rgba(14,148,102,.05); border-left: 1px solid var(--line); }
+.compare h3 { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 14px; }
+.compare .before h3 { color: var(--over); }
+.compare .after h3 { color: var(--paid); }
+.compare ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 11px; }
+.compare li { font-size: 17.5px; display: flex; gap: 10px; align-items: baseline; }
+.compare .before li::before { content: "✕"; color: var(--over); font-size: 14px; }
+.compare .after li::before { content: "✓"; color: var(--paid); font-size: 15px; font-weight: 700; }
+
+.stat { text-align: left; }
+.stat .num { font-family: var(--font-display); font-size: 84px; font-weight: 700; line-height: 1; color: var(--fg); font-variant-numeric: tabular-nums; }
+.stat .num small { font-size: 34px; color: var(--indigo); }
+.stat .lbl { margin-top: 10px; font-size: 17px; color: var(--muted); }
+.stat .bar { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--indigo), var(--paid)); margin-top: 18px; }
+
+/* diagram */
+.diagram { flex: 1; min-height: 0; }
+.diagram svg { width: 100%; height: 100%; }
+.diagram .box { fill: var(--panel-2); stroke: var(--line); stroke-width: 1.5; }
+.diagram .box.key { fill: rgba(79,70,229,.09); stroke: var(--indigo); }
+.diagram .zone { fill: none; stroke: var(--line); stroke-dasharray: 6 6; }
+.diagram text { fill: var(--fg); font-family: var(--font-body); }
+.diagram .t { font-weight: 600; font-size: 17px; }
+.diagram .s { fill: var(--muted); font-size: 12.5px; }
+.diagram .z { fill: var(--muted); font-size: 12px; letter-spacing: .14em; font-family: var(--font-display); }
+.diagram .edge { fill: none; stroke: var(--indigo); stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.active .diagram .edge { animation: draw .9s ease forwards; animation-delay: calc(var(--d) + .6s); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.diagram .el { fill: var(--muted); font-size: 12px; }
+.diagram .node { opacity: 0; }
+.active .diagram .node { animation: aPop .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay: calc(var(--d) + .2s); transform-box: fill-box; transform-origin: center; }
+.active .diagram .el { animation: aFade .5s both; animation-delay: calc(var(--d) + 1.2s); }
+.pulse { fill: var(--paid); opacity: 0; }
+.active .pulse { animation: travel 3.2s linear infinite 2.6s; offset-rotate: 0deg; }
+@keyframes travel { 0% { offset-distance: 0%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+
+/* stack chips */
+.stack { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.tech { background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+.tech .k { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--indigo); }
+.tech .v { font-family: var(--font-display); font-size: 23px; font-weight: 600; margin: 6px 0 4px; }
+.tech p { font-size: 14.5px; line-height: 1.45; }
+
+/* features */
+.feat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.feat .card { padding: 20px; }
+.feat .card h3 { display: flex; align-items: center; gap: 10px; }
+.feat .ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(79,70,229,.10); color: var(--indigo); flex: none; }
+.feat .ico svg { width: 19px; height: 19px; }
+.feat .card p { font-size: 14.5px; line-height: 1.45; margin-top: 6px; }
+.feat .wide { grid-column: span 2; }
+
+/* flow steps */
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; position: relative; margin-top: 30px; }
+.flow .track { position: absolute; left: 6%; right: 6%; top: 34px; height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.flow .track i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--indigo), var(--paid)); transform-origin: left; transform: scaleX(0); }
+.active .flow .track i { animation: aGrow 2.6s ease both .5s; }
+.flow .st { position: relative; text-align: center; }
+.flow .dot { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 16px; display: grid; place-items: center; background: var(--panel); border: 2px solid var(--indigo); font-family: var(--font-display); font-weight: 700; font-size: 24px; color: var(--indigo); position: relative; z-index: 1; }
+.flow .st:last-child .dot { border-color: var(--paid); color: var(--paid); }
+.flow p { font-size: 15.5px; }
+.formula { margin-top: 38px; font-family: var(--font-mono); font-size: 18px; background: var(--code); border: 1px solid var(--line); border-radius: 14px; padding: 20px 26px; color: var(--fg); line-height: 1.9; }
+.formula .c { color: var(--muted); }
+.badge { display: inline-block; padding: 3px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; font-family: var(--font-body); }
+.b-paid { background: rgba(14,148,102,.12); color: var(--paid); }
+.b-pend { background: rgba(178,106,0,.12); color: var(--due); }
+.b-over { background: rgba(214,60,60,.12); color: var(--over); }
+
+/* db tables */
+.tables { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; perspective: 900px; }
+.tbl { background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.tbl .th { background: rgba(79,70,229,.10); color: var(--indigo); padding: 12px 16px; font-family: var(--font-mono); font-weight: 500; font-size: 16px; }
+.tbl ul { list-style: none; margin: 0; padding: 10px 16px 14px; display: grid; gap: 5px; }
+.tbl li { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.tbl li.pk { color: var(--due); }
+.tbl li.js { color: var(--paid); }
+.code { margin-top: 24px; background: var(--code); border: 1px solid var(--line); border-radius: 14px; padding: 20px 24px; font-family: var(--font-mono); font-size: 17px; line-height: 1.7; white-space: pre; min-height: 112px; color: var(--fg); }
+.code .cursor { display: inline-block; width: 9px; height: 1.1em; background: var(--indigo); vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* pipeline */
+.pipe { display: grid; grid-template-columns: 1fr 60px 1fr 60px 1fr; align-items: stretch; gap: 0; }
+.pipe .arrow { display: grid; place-items: center; color: var(--indigo); }
+.pipe .arrow svg { width: 40px; }
+.pipe .arrow path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.active .pipe .arrow path { animation: draw .7s ease forwards; animation-delay: calc(var(--d) + .4s); }
+.pipe .card ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.note { margin-top: 22px; border-radius: 14px; padding: 16px 22px; background: #fdf5e6; border: 1px solid rgba(178,106,0,.25); font-size: 16px; color: var(--fg); line-height: 1.5; }
+.note b { color: var(--due); }
+
+/* chart */
+.chart { display: grid; gap: 22px; margin-top: 8px; }
+.chart .r { display: grid; grid-template-columns: 300px 1fr 70px; gap: 18px; align-items: center; }
+.chart .lab { font-size: 17px; }
+.chart .trk { height: 30px; background: var(--code); border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+.chart .fill { height: 100%; border-radius: 7px; }
+.chart .val { font-family: var(--font-display); font-weight: 700; font-size: 24px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* timeline */
+.tl { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px 22px; margin-top: 6px; }
+.tl .step { background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; position: relative; }
+.tl .step .n { font-family: var(--font-mono); color: var(--indigo); font-size: 13px; letter-spacing: .1em; }
+.tl .step h3 { font-size: 18px; margin: 6px 0 4px; }
+.tl .step p { font-size: 14px; line-height: 1.45; }
+.tl .step code { font-family: var(--font-mono); font-size: 12.5px; color: var(--paid); }
+.health { margin-top: 26px; display: flex; align-items: center; gap: 14px; font-family: var(--font-mono); font-size: 16px; color: var(--muted); }
+.health .led { width: 14px; height: 14px; border-radius: 50%; background: var(--paid); box-shadow: 0 0 0 0 rgba(14,148,102,.5); }
+.active .health .led { animation: led 1.6s infinite 1.5s; }
+@keyframes led { 0% { box-shadow: 0 0 0 0 rgba(14,148,102,.5); } 100% { box-shadow: 0 0 0 16px rgba(14,148,102,0); } }
+
+/* vars table */
+.vt { width: 100%; border-collapse: collapse; font-size: 17px; }
+.vt th { text-align: left; font-family: var(--font-display); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 0 16px 12px; border-bottom: 1px solid var(--line); }
+.vt td { padding: 15px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.vt td:first-child { font-family: var(--font-mono); color: var(--indigo); white-space: nowrap; }
+.vt .val { font-family: var(--font-mono); font-size: 15px; color: var(--paid); }
+.tag { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+.t-req { background: rgba(214,60,60,.12); color: var(--over); }
+.t-auto { background: rgba(14,148,102,.12); color: var(--paid); }
+.t-opt { background: rgba(91,97,128,.12); color: var(--muted); }
+
+/* flip cards (502 story) */
+.flips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; perspective: 1200px; }
+.fc { height: 230px; position: relative; transform-style: preserve-3d; cursor: pointer; }
+.fc .inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .8s cubic-bezier(.2,.8,.2,1); }
+.fc.flipped .inner { transform: rotateY(180deg); }
+.fc .face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 16px; padding: 24px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.fc .front { background: var(--panel-2); }
+.fc .backf { background: #eef8f3; border-color: rgba(14,148,102,.35); transform: rotateY(180deg); }
+.fc .lbl { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; }
+.fc .front .lbl { color: var(--over); }
+.fc .backf .lbl { color: var(--paid); }
+.fc h3 { font-size: 22px; }
+.fc p { font-size: 16px; }
+.fc .hint { margin-top: auto; font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+.fc code { font-family: var(--font-mono); font-size: 14px; color: var(--paid); }
+
+/* checklist */
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 28px; }
+.ck { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.ck .box { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--line); flex: none; display: grid; place-items: center; }
+.ck svg { width: 18px; height: 18px; }
+.ck svg path { stroke: var(--paid); stroke-width: 3; fill: none; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.active .ck .box { animation: boxOn .3s ease forwards; animation-delay: calc(var(--d) + .3s); }
+.active .ck svg path { animation: draw .45s ease forwards; animation-delay: calc(var(--d) + .45s); }
+@keyframes boxOn { to { border-color: var(--paid); background: rgba(14,148,102,.10); } }
+.ck.pending .box { border-color: var(--due); }
+.active .ck.pending .box { animation: none; }
+.ck h3 { font-size: 18px; margin: 0 0 2px; }
+.ck p { font-size: 14.5px; }
+
+/* devices */
+.devices { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 46px; padding-bottom: 10px; }
+.dev { background: var(--fg); border: 2px solid var(--line); border-radius: 18px; padding: 12px; position: relative; }
+.dev .scr { background: #ffffff; border-radius: 8px; height: 100%; display: grid; gap: 8px; padding: 10px; align-content: start; }
+.dev .sk { height: 30px; border-radius: 6px; background: rgba(79,70,229,.14); }
+.dev .sk.g { background: rgba(14,148,102,.16); }
+.dev .sk.t { height: 60px; background: rgba(91,97,128,.10); }
+.dev .cap { position: absolute; bottom: -34px; left: 0; right: 0; text-align: center; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.laptop { width: 470px; height: 300px; }
+.laptop .scr { grid-template-columns: repeat(4, 1fr); }
+.laptop .t { grid-column: span 4; height: 110px; }
+.tablet { width: 250px; height: 330px; }
+.tablet .scr { grid-template-columns: 1fr 1fr; }
+.tablet .t { grid-column: span 2; }
+.phone { width: 140px; height: 270px; border-radius: 24px; }
+.phone .scr { grid-template-columns: 1fr; border-radius: 14px; }
+
+/* closing */
+.big-thanks { font-family: var(--font-display); font-size: 110px; font-weight: 700; letter-spacing: -.03em; line-height: 1; margin: auto 0 0; }
+.big-thanks span { display: inline-block; }
+.active .big-thanks span { animation: wave .9s cubic-bezier(.3,1.6,.5,1) both; animation-delay: calc(var(--i) * .06s + .3s); }
+@keyframes wave { from { opacity: 0; transform: translateY(60px) rotate(8deg); } to { opacity: 1; transform: none; } }
+.future { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+
+/* controls */
+.bar { height: 58px; flex: none; display: flex; align-items: center; gap: 12px; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.bar button { background: var(--panel); border: 1px solid var(--line); color: var(--fg); border-radius: 10px; height: 38px; min-width: 42px; padding: 0 12px; font: 600 14px var(--font-body); cursor: pointer; display: inline-grid; place-items: center; }
+.bar button:hover { border-color: var(--indigo); }
+.bar button:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+.bar button svg { width: 18px; height: 18px; }
+.progress { flex: 1; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; min-width: 0; }
+.progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--indigo), var(--paid)); width: 0; transition: width .5s ease; }
+.count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); min-width: 54px; text-align: center; font-variant-numeric: tabular-nums; }
+.keys { font-size: 12px; color: var(--muted); white-space: nowrap; }
+@media (max-width: 700px) { .keys { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+
+<div class="viewport" id="viewport">
+  <div class="stage" id="stage">
+
+    <!-- 1 Title -->
+    <section class="slide" data-t="zoom" aria-label="Title">
+      <div class="title-wrap">
+        <p class="eyebrow a up">BCA 7th Semester · Minor Project</p>
+        <h1>
+          <span class="title-word" style="--i:0">Automated</span>
+          <span class="title-word" style="--i:1">Invoicing</span><br>
+          <span class="title-word" style="--i:2">&amp;</span>
+          <span class="title-word" style="--i:3">Expense</span>
+          <span class="title-word" style="--i:4">Tracker</span>
+        </h1>
+        <p class="a up" style="--d:.7s; margin-top:22px; max-width:620px">A Python web app for small businesses: customers, invoices with PDF export, expenses and profit &amp; loss reports. Deployed on Railway with PostgreSQL.</p>
+        <div class="chips">
+          <span class="chip a pop" style="--d:1s"><b>Python</b> 3.12</span>
+          <span class="chip a pop" style="--d:1.1s"><b>Streamlit</b> UI</span>
+          <span class="chip a pop" style="--d:1.2s"><b>PostgreSQL</b></span>
+          <span class="chip a pop" style="--d:1.3s"><b>Railway</b> hosting</span>
+        </div>
+      </div>
+      <div class="invoice-float" aria-hidden="true">
+        <div class="ih"><span>INVOICE</span><span style="font-size:14px;color:#6b7090">INV-1001</span></div>
+        <div style="font-size:12px;color:#6b7090;margin:4px 0 12px">Due 26 Nov 2026</div>
+        <div class="row"><span>Website design</span><span>₹25,000</span></div>
+        <div class="row"><span>Hosting (12 mo)</span><span>₹6,000</span></div>
+        <div class="row"><span>GST 18%</span><span>₹5,580</span></div>
+        <div class="tot"><span>Total</span><span>₹36,580</span></div>
+        <div class="stamp">PAID</div>
+      </div>
+      <div class="slide-no">01</div>
+    </section>
+
+    <!-- 2 Problem -->
+    <section class="slide" data-t="wipe" aria-label="Before and after">
+      <p class="eyebrow a up">The starting point</p>
+      <h2 class="a up" style="--d:.1s">From a prototype that would not launch to a deployed product</h2>
+      <div class="compare">
+        <div class="before a left" style="--d:.3s">
+          <h3>Original prototype</h3>
+          <ul>
+            <li>One 450-line file</li>
+            <li>Data in JSON / CSV files</li>
+            <li>One item per invoice</li>
+            <li>Add and delete only</li>
+            <li>Desktop-only layout</li>
+            <li>No start command: Railway returned 502</li>
+          </ul>
+        </div>
+        <div class="after a right" style="--d:.6s">
+          <h3>Current version</h3>
+          <ul>
+            <li>5 modules, 1,711 lines</li>
+            <li>PostgreSQL through SQLAlchemy</li>
+            <li>Multi-line invoices with tax &amp; discount</li>
+            <li>Edit, search, filter, reports, export</li>
+            <li>Laptop, tablet and phone layouts</li>
+            <li>Live on Railway with a health check</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-no">02</div>
+    </section>
+
+    <!-- 3 Numbers -->
+    <section class="slide" data-t="rise" aria-label="Project in numbers">
+      <p class="eyebrow a up">In numbers</p>
+      <h2 class="a up" style="--d:.1s">The project at a glance</h2>
+      <div class="grid g4" style="margin-top:30px">
+        <div class="stat a up" style="--d:.2s"><div class="num" data-count="7">7</div><div class="lbl">app pages</div><div class="bar a grow" style="--d:.4s"></div></div>
+        <div class="stat a up" style="--d:.35s"><div class="num" data-count="4">4</div><div class="lbl">database tables</div><div class="bar a grow" style="--d:.55s"></div></div>
+        <div class="stat a up" style="--d:.5s"><div class="num" data-count="1711" data-sep="1">1,711</div><div class="lbl">lines of Python</div><div class="bar a grow" style="--d:.7s"></div></div>
+        <div class="stat a up" style="--d:.65s"><div class="num"><span data-count="3">3</span><small> sizes</small></div><div class="lbl">laptop · tablet · phone tested</div><div class="bar a grow" style="--d:.85s"></div></div>
+      </div>
+      <div class="grid g3" style="margin-top:56px">
+        <div class="card a flipin" style="--d:.9s"><h3>7 Python packages</h3><p>Streamlit, pandas, Plotly, ReportLab, SQLAlchemy, psycopg, openpyxl</p></div>
+        <div class="card a flipin" style="--d:1.05s"><h3>2 data sources</h3><p>DummyJSON sample API and Amazon Seller Central order reports</p></div>
+        <div class="card a flipin" style="--d:1.2s"><h3>1 click deploys</h3><p>Every push to <span class="mono hi">main</span> rebuilds the app on Railway</p></div>
+      </div>
+      <div class="slide-no">03</div>
+    </section>
+
+    <!-- 4 Architecture -->
+    <section class="slide" data-t="blur" aria-label="Architecture">
+      <p class="eyebrow a up">Architecture</p>
+      <h2 class="a up" style="--d:.1s; margin-bottom:10px">How the pieces connect</h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1130 450" aria-label="Browser to Railway web service; start.py runs app.py which uses db.py, pdf_utils.py and sample_data.py; db.py talks SQL to PostgreSQL; sample_data.py fetches JSON from DummyJSON.">
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4f46e5"/></marker></defs>
+          <rect class="zone" x="230" y="10" width="620" height="430" rx="16"/>
+          <text class="z" x="250" y="38">RAILWAY · WEB SERVICE</text>
+          <rect class="zone" x="875" y="10" width="245" height="430" rx="16"/>
+          <text class="z" x="895" y="38">EXTERNAL</text>
+
+          <g class="node" style="--d:0s"><rect class="box" x="10" y="190" width="185" height="80" rx="12"/><text class="t" x="102" y="226" text-anchor="middle">Browser</text><text class="s" x="102" y="248" text-anchor="middle">laptop · tablet · phone</text></g>
+          <g class="node" style="--d:.15s"><rect class="box" x="260" y="70" width="240" height="66" rx="12"/><text class="t" x="380" y="99" text-anchor="middle">start.py</text><text class="s" x="380" y="120" text-anchor="middle">reads $PORT · launches server</text></g>
+          <g class="node" style="--d:.3s"><rect class="box key" x="260" y="190" width="240" height="80" rx="12"/><text class="t" x="380" y="224" text-anchor="middle">app.py</text><text class="s" x="380" y="246" text-anchor="middle">Streamlit UI · 7 pages</text></g>
+          <g class="node" style="--d:.45s"><rect class="box" x="580" y="90" width="240" height="66" rx="12"/><text class="t" x="700" y="119" text-anchor="middle">db.py</text><text class="s" x="700" y="140" text-anchor="middle">SQLAlchemy storage layer</text></g>
+          <g class="node" style="--d:.55s"><rect class="box" x="580" y="197" width="240" height="66" rx="12"/><text class="t" x="700" y="226" text-anchor="middle">pdf_utils.py</text><text class="s" x="700" y="247" text-anchor="middle">ReportLab invoice PDF</text></g>
+          <g class="node" style="--d:.65s"><rect class="box" x="580" y="304" width="240" height="66" rx="12"/><text class="t" x="700" y="333" text-anchor="middle">sample_data.py</text><text class="s" x="700" y="354" text-anchor="middle">demo data · Amazon import</text></g>
+          <g class="node" style="--d:.8s"><rect class="box key" x="900" y="80" width="200" height="86" rx="12"/><text class="t" x="1000" y="114" text-anchor="middle">PostgreSQL</text><text class="s" x="1000" y="136" text-anchor="middle">Railway database</text><text class="s" x="1000" y="154" text-anchor="middle">SQLite if not set</text></g>
+          <g class="node" style="--d:.9s"><rect class="box" x="900" y="294" width="200" height="86" rx="12"/><text class="t" x="1000" y="328" text-anchor="middle">DummyJSON API</text><text class="s" x="1000" y="350" text-anchor="middle">/users · /carts</text></g>
+
+          <path class="edge" style="--d:.2s" pathLength="1" d="M195,230 L258,230" marker-end="url(#ah)"/>
+          <path class="edge" style="--d:.35s" pathLength="1" d="M380,136 L380,188" marker-end="url(#ah)"/>
+          <path class="edge" style="--d:.5s" pathLength="1" d="M500,215 C540,215 540,123 578,123" marker-end="url(#ah)"/>
+          <path class="edge" style="--d:.6s" pathLength="1" d="M500,230 L578,230" marker-end="url(#ah)"/>
+          <path class="edge" style="--d:.7s" pathLength="1" d="M500,245 C540,245 540,337 578,337" marker-end="url(#ah)"/>
+          <path class="edge" style="--d:.85s" pathLength="1" d="M820,123 L898,123" marker-end="url(#ah)"/>
+          <path class="edge" style="--d:.95s" pathLength="1" d="M820,337 L898,337" marker-end="url(#ah)"/>
+          <path class="edge" style="--d:1.05s" pathLength="1" d="M820,326 C842,326 842,148 822,148" marker-end="url(#ah)"/>
+
+          <text class="el" style="--d:0s" x="203" y="220">HTTPS</text>
+          <text class="el" style="--d:0s" x="388" y="168">runs</text>
+          <text class="el" style="--d:0s" x="836" y="113">SQL</text>
+          <text class="el" style="--d:0s" x="832" y="327">JSON</text>
+
+        </svg>
+      </div>
+      <div class="slide-no">04</div>
+    </section>
+
+    <!-- 5 Stack -->
+    <section class="slide" data-t="slide" aria-label="Technology stack">
+      <p class="eyebrow a up">Technology stack</p>
+      <h2 class="a up" style="--d:.1s">Written entirely in Python</h2>
+      <div class="stack">
+        <div class="tech a pop" style="--d:.2s"><div class="k">Language</div><div class="v">Python 3.12</div><p>All app logic, config in JSON / TOML</p></div>
+        <div class="tech a pop" style="--d:.3s"><div class="k">Web UI</div><div class="v">Streamlit</div><p>Pages, forms and editable grids in pure Python</p></div>
+        <div class="tech a pop" style="--d:.4s"><div class="k">Data</div><div class="v">pandas</div><p>Filtering, monthly grouping, CSV export</p></div>
+        <div class="tech a pop" style="--d:.5s"><div class="k">Charts</div><div class="v">Plotly</div><p>Interactive bar, pie and line charts</p></div>
+        <div class="tech a pop" style="--d:.6s"><div class="k">PDF</div><div class="v">ReportLab</div><p>Invoice PDFs with item tables and totals</p></div>
+        <div class="tech a pop" style="--d:.7s"><div class="k">Database layer</div><div class="v">SQLAlchemy 2</div><p>One code path for PostgreSQL and SQLite</p></div>
+        <div class="tech a pop" style="--d:.8s"><div class="k">Database</div><div class="v">PostgreSQL</div><p>Managed by Railway, driver psycopg 3</p></div>
+        <div class="tech a pop" style="--d:.9s"><div class="k">Hosting</div><div class="v">Railway</div><p>Builds from GitHub, free HTTPS domain</p></div>
+      </div>
+      <p class="a fade" style="--d:1.2s; margin-top:26px; font-size:16px">Also used: openpyxl for Excel export · Git and GitHub for version control · Playwright and PostgreSQL 16 for testing</p>
+      <div class="slide-no">05</div>
+    </section>
+
+    <!-- 6 Features -->
+    <section class="slide" data-t="flip" aria-label="Features">
+      <p class="eyebrow a up">Features</p>
+      <h2 class="a up" style="--d:.1s">Seven pages, one workflow</h2>
+      <div class="feat">
+        <div class="card wide a up" style="--d:.2s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Dashboard</h3><p>Income, expenses, outstanding and overdue amounts, net profit, a 12-month cash-flow chart, spending by category and invoices due this week.</p></div>
+        <div class="card a up" style="--d:.3s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>New invoice</h3><p>Line-item grid, per-line tax, discount, live totals, PDF.</p></div>
+        <div class="card a up" style="--d:.4s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/></svg></span>Invoices</h3><p>Search, filter, mark paid, cancel, duplicate, edit, delete.</p></div>
+        <div class="card a up" style="--d:.5s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 1 0 0-6M22 20c0-3-2-5-5-5"/></svg></span>Customers</h3><p>Validation, GSTIN, total billed, edit and search.</p></div>
+        <div class="card a up" style="--d:.6s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>Expenses</h3><p>Vendor, method, filters, edit rows in a grid.</p></div>
+        <div class="card a up" style="--d:.7s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></span>Reports</h3><p>Any date range, P&amp;L, top customers, Excel export.</p></div>
+        <div class="card a up" style="--d:.8s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></span>Settings</h3><p>Business profile, numbering, backup, sample data.</p></div>
+      </div>
+      <div class="slide-no">06</div>
+    </section>
+
+    <!-- 7 Invoice workflow -->
+    <section class="slide" data-t="cube" aria-label="Invoice workflow">
+      <p class="eyebrow a up">Invoice lifecycle</p>
+      <h2 class="a up" style="--d:.1s">From order to income in four steps</h2>
+      <div class="flow">
+        <div class="track"><i></i></div>
+        <div class="st a pop" style="--d:.4s"><div class="dot">1</div><h3>Create</h3><p>Pick customer, add items. Number <span class="mono hi">INV-1001</span> assigned in the same transaction.</p></div>
+        <div class="st a pop" style="--d:1s"><div class="dot">2</div><h3>Send PDF</h3><p>ReportLab builds the invoice with your business header.</p></div>
+        <div class="st a pop" style="--d:1.6s"><div class="dot">3</div><h3>Track</h3><p><span class="badge b-pend">Pending</span> turns <span class="badge b-over">Overdue</span> after the due date.</p></div>
+        <div class="st a pop" style="--d:2.2s"><div class="dot">4</div><h3>Get paid</h3><p>Mark <span class="badge b-paid">Paid</span>: it now counts as income in reports.</p></div>
+      </div>
+      <div class="formula a up" style="--d:2.6s">
+        subtotal = Σ qty × price <span class="c">·</span> tax = Σ qty × price × tax% ÷ 100<br>
+        total = subtotal + tax − discount <span class="c">  # discount capped so total ≥ 0</span>
+      </div>
+      <div class="slide-no">07</div>
+    </section>
+
+    <!-- 8 Database -->
+    <section class="slide" data-t="zoom" aria-label="Database design">
+      <p class="eyebrow a up">Database design</p>
+      <h2 class="a up" style="--d:.1s">Four tables, two databases, one code path</h2>
+      <div class="tables">
+        <div class="tbl a flipin" style="--d:.2s"><div class="th">customers</div><ul><li class="pk">id  PK</li><li>name</li><li>email</li><li>phone · company</li><li>tax_id · address</li></ul></div>
+        <div class="tbl a flipin" style="--d:.35s"><div class="th">invoices</div><ul><li class="pk">id  PK · number UNIQUE</li><li>customer snapshot</li><li>issue / due / paid date</li><li>status</li><li class="js">items  JSON</li><li>subtotal · tax · total</li></ul></div>
+        <div class="tbl a flipin" style="--d:.5s"><div class="th">expenses</div><ul><li class="pk">id  PK</li><li>date · category</li><li>vendor · description</li><li>amount</li><li>payment_method</li></ul></div>
+        <div class="tbl a flipin" style="--d:.65s"><div class="th">settings</div><ul><li class="pk">key  PK</li><li>value</li><li>business profile</li><li>currency · tax · prefix</li></ul></div>
+      </div>
+      <div class="code" data-type="# db.py: choose the database at startup&#10;url = os.environ.get(&quot;DATABASE_URL&quot;)&#10;engine = create_engine(url or &quot;sqlite:///data/finance.db&quot;)&#10;metadata.create_all(engine)   # tables created automatically"></div>
+      <div class="slide-no">08</div>
+    </section>
+
+    <!-- 9 Data sources -->
+    <section class="slide" data-t="slide" aria-label="Data sources">
+      <p class="eyebrow a up">Where the data comes from</p>
+      <h2 class="a up" style="--d:.1s">A realistic dataset from a public API</h2>
+      <div class="pipe">
+        <div class="card a up" style="--d:.2s"><h3>1 · DummyJSON API</h3><p style="font-size:15px">Free e-commerce test data, no key needed</p><ul><li><span class="mono hi">GET /users</span> → customers</li><li><span class="mono hi">GET /carts</span> → orders</li></ul></div>
+        <div class="arrow" style="--d:.5s"><svg viewBox="0 0 40 20" fill="none" stroke="currentColor" stroke-width="2.5"><path pathLength="1" d="M2 10h32M28 4l7 6-7 6"/></svg></div>
+        <div class="card a up" style="--d:.6s"><h3>2 · Convert</h3><p style="font-size:15px">In <span class="mono hi">sample_data.py</span></p><ul><li>USD → INR at ₹83</li><li>Spread over 12 months</li><li>Realistic paid / pending mix</li><li>12 recurring expenses</li></ul></div>
+        <div class="arrow" style="--d:.9s"><svg viewBox="0 0 40 20" fill="none" stroke="currentColor" stroke-width="2.5"><path pathLength="1" d="M2 10h32M28 4l7 6-7 6"/></svg></div>
+        <div class="card a up" style="--d:1s"><h3>3 · Save</h3><p style="font-size:15px">Through <span class="mono hi">db.py</span> into PostgreSQL</p><ul><li>IDs start with <span class="mono hl">sample-</span></li><li>Removable in one click</li><li>Offline generator if API is down</li></ul></div>
+      </div>
+      <div class="note a up" style="--d:1.3s"><b>Real Amazon data?</b> Amazon has no public API for customer data. The Selling Partner API returns only a seller's own orders and needs a registered developer app. So the app imports the <b>All Orders report</b> a seller downloads from Seller Central: each Amazon order becomes an invoice.</div>
+      <div class="slide-no">09</div>
+    </section>
+
+    <!-- 10 Sample realism chart -->
+    <section class="slide" data-t="circle" aria-label="Sample data rules">
+      <p class="eyebrow a up">Making demo data believable</p>
+      <h2 class="a up" style="--d:.1s">Rules applied to the sample orders</h2>
+      <div class="chart">
+        <div class="r a fade" style="--d:.2s"><div class="lab">Orders older than 45 days marked paid</div><div class="trk"><div class="fill a grow" style="--d:.3s; width:92%; background:var(--paid)"></div></div><div class="val"><span data-count="92">92</span>%</div></div>
+        <div class="r a fade" style="--d:.4s"><div class="lab">Recent orders (≤ 45 days) marked paid</div><div class="trk"><div class="fill a grow" style="--d:.5s; width:45%; background:var(--due)"></div></div><div class="val"><span data-count="45">45</span>%</div></div>
+        <div class="r a fade" style="--d:.6s"><div class="lab">Expenses as a share of revenue</div><div class="trk"><div class="fill a grow" style="--d:.7s; width:65%; background:var(--indigo)"></div></div><div class="val"><span data-count="65">65</span>%</div></div>
+        <div class="r a fade" style="--d:.8s"><div class="lab">Orders cancelled</div><div class="trk"><div class="fill a grow" style="--d:.9s; width:4%; background:var(--over)"></div></div><div class="val"><span data-count="4">4</span>%</div></div>
+      </div>
+      <p class="a up" style="--d:1.3s; margin-top:34px; font-size:17px">Offline fallback: 40 customers in 10 Indian cities, 180 orders from a 26-product catalogue, fixed random seed 42 so every demo looks the same.</p>
+      <div class="slide-no">10</div>
+    </section>
+
+    <!-- 11 Railway steps -->
+    <section class="slide" data-t="rise" aria-label="Deployment steps">
+      <p class="eyebrow a up">Deployment on Railway</p>
+      <h2 class="a up" style="--d:.1s">GitHub push to live URL in eight steps</h2>
+      <div class="tl">
+        <div class="step a up" style="--d:.2s"><div class="n">STEP 1</div><h3>Connect repo</h3><p>Deploy from GitHub, branch <code>main</code></p></div>
+        <div class="step a up" style="--d:.35s"><div class="n">STEP 2</div><h3>Build</h3><p>Railpack reads <code>requirements.txt</code>, Python <code>3.12</code></p></div>
+        <div class="step a up" style="--d:.5s"><div class="n">STEP 3</div><h3>Add Postgres</h3><p>New → Database → PostgreSQL</p></div>
+        <div class="step a up" style="--d:.65s"><div class="n">STEP 4</div><h3>Link variable</h3><p><code>DATABASE_URL</code> on the app service</p></div>
+        <div class="step a up" style="--d:.8s"><div class="n">STEP 5</div><h3>Start</h3><p><code>python start.py</code> on <code>0.0.0.0:$PORT</code></p></div>
+        <div class="step a up" style="--d:.95s"><div class="n">STEP 6</div><h3>Health check</h3><p><code>/_stcore/health</code> must answer ok</p></div>
+        <div class="step a up" style="--d:1.1s"><div class="n">STEP 7</div><h3>Domain</h3><p>Generate a free <code>*.up.railway.app</code> URL</p></div>
+        <div class="step a up" style="--d:1.25s"><div class="n">STEP 8</div><h3>First run</h3><p>Tables created; sidebar shows PostgreSQL</p></div>
+      </div>
+      <div class="health a fade" style="--d:1.5s"><span class="led"></span>GET /_stcore/health → 200 ok · restart on failure, 5 retries</div>
+      <div class="slide-no">11</div>
+    </section>
+
+    <!-- 12 Variables -->
+    <section class="slide" data-t="wipe" aria-label="Environment variables">
+      <p class="eyebrow a up">Configuration</p>
+      <h2 class="a up" style="--d:.1s">Environment variables</h2>
+      <table class="vt">
+        <thead><tr class="a fade" style="--d:.15s"><th>Variable</th><th>Value</th><th>Status</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr class="a left" style="--d:.3s"><td>DATABASE_URL</td><td class="val">${{Postgres.DATABASE_URL}}</td><td><span class="tag t-req">Required</span></td><td>Connects to PostgreSQL. Without it, SQLite is used and Railway wipes it on redeploy.</td></tr>
+          <tr class="a left" style="--d:.45s"><td>PORT</td><td class="val">set by Railway</td><td><span class="tag t-auto">Automatic</span></td><td>Port the app listens on; read by start.py</td></tr>
+          <tr class="a left" style="--d:.6s"><td>APP_PASSWORD</td><td class="val">any password</td><td><span class="tag t-opt">Optional</span></td><td>Adds a sign-in screen</td></tr>
+          <tr class="a left" style="--d:.75s"><td>DATA_DIR</td><td class="val">/data</td><td><span class="tag t-opt">Optional</span></td><td>SQLite folder when using a Railway volume</td></tr>
+        </tbody>
+      </table>
+      <p class="a up" style="--d:1s; margin-top:26px; font-size:17px">No secrets in the code: <span class="mono hi">.env.example</span> lists the names, <span class="mono hi">.gitignore</span> keeps <span class="mono hi">.env</span> and local data out of GitHub.</p>
+      <div class="slide-no">12</div>
+    </section>
+
+    <!-- 13 502 story -->
+    <section class="slide" data-t="flip" aria-label="Debugging the 502 error">
+      <p class="eyebrow a up">Debugging</p>
+      <h2 class="a up" style="--d:.1s">Solving the 502 Bad Gateway</h2>
+      <div class="flips">
+        <div class="fc a up" style="--d:.2s" data-autoflip="1.6" tabindex="0" role="button" aria-label="Problem 1: card flips to show the fix">
+          <div class="inner">
+            <div class="face front"><div class="lbl">Problem 1</div><h3>App never started</h3><p>The repo had no start command, so Railway did not know how to run it.</p><div class="hint">click to flip</div></div>
+            <div class="face backf"><div class="lbl">Fix</div><h3>railway.json + Procfile</h3><p>Start command, health check and restart policy added.</p></div>
+          </div>
+        </div>
+        <div class="fc a up" style="--d:.4s" data-autoflip="2.4" tabindex="0" role="button" aria-label="Problem 2: card flips to show the fix">
+          <div class="inner">
+            <div class="face front"><div class="lbl">Problem 2</div><h3>Still 502 after setup</h3><p>Fixes were on a feature branch. Railway kept deploying old <code>main</code>.</p><div class="hint">click to flip</div></div>
+            <div class="face backf"><div class="lbl">Fix</div><h3>Merged into main</h3><p>Railway redeployed automatically on push.</p></div>
+          </div>
+        </div>
+        <div class="fc a up" style="--d:.6s" data-autoflip="3.2" tabindex="0" role="button" aria-label="Problem 3: card flips to show the fix">
+          <div class="inner">
+            <div class="face front"><div class="lbl">Problem 3</div><h3>Wrong port risk</h3><p>Streamlit defaults to 8501; Railway routes traffic to <code>$PORT</code>.</p><div class="hint">click to flip</div></div>
+            <div class="face backf"><div class="lbl">Fix</div><h3>start.py launcher</h3><p>Reads <code>PORT</code> in Python and binds to <code>0.0.0.0</code>. No shell expansion needed.</p></div>
+          </div>
+        </div>
+      </div>
+      <p class="a fade" style="--d:3.8s; margin-top:26px; font-size:17px">Also fixed: data loss on redeploy (moved to PostgreSQL) and slow database hangs (10-second connect timeout).</p>
+      <div class="slide-no">13</div>
+    </section>
+
+    <!-- 14 Testing -->
+    <section class="slide" data-t="blur" aria-label="Testing">
+      <p class="eyebrow a up">Testing</p>
+      <h2 class="a up" style="--d:.1s">What was verified</h2>
+      <div class="checks">
+        <div class="ck" style="--d:.2s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>PostgreSQL 16</h3><p>Load data, list, update status, backup</p></div></div>
+        <div class="ck" style="--d:.4s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>SQLite fallback</h3><p>Same functions with no DATABASE_URL</p></div></div>
+        <div class="ck" style="--d:.6s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>7 pages × 3 screen sizes</h3><p>Playwright: no errors, no sideways scroll</p></div></div>
+        <div class="ck" style="--d:.8s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>Create invoice in browser</h3><p>Grid entry, save, PDF download</p></div></div>
+        <div class="ck" style="--d:1s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>Invoice PDF layout</h3><p>Rendered and inspected a 3-item invoice</p></div></div>
+        <div class="ck" style="--d:1.2s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>Amazon import</h3><p>2 orders imported, 0 duplicates on re-import</p></div></div>
+        <div class="ck" style="--d:1.4s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>Railway start command</h3><p>start.py on custom PORT, health check ok</p></div></div>
+        <div class="ck pending" style="--d:1.6s"><span class="box"></span><div><h3>Live DummyJSON fetch</h3><p>Blocked in the build sandbox; verify on Railway</p></div></div>
+      </div>
+      <div class="slide-no">14</div>
+    </section>
+
+    <!-- 15 Responsive -->
+    <section class="slide" data-t="zoom" aria-label="Responsive design">
+      <p class="eyebrow a up">Responsive design</p>
+      <h2 class="a up" style="--d:.1s">One app on every screen</h2>
+      <p class="a up" style="--d:.2s; max-width:900px">CSS media queries reflow the layout: four columns on a laptop, two on a tablet, one on a phone with full-width buttons. The sidebar folds into a menu button.</p>
+      <div class="devices">
+        <div class="dev laptop a up" style="--d:.4s"><div class="scr"><div class="sk"></div><div class="sk"></div><div class="sk g"></div><div class="sk"></div><div class="sk t"></div></div><div class="cap">laptop · &gt; 1024 px · 4 columns</div></div>
+        <div class="dev tablet a up" style="--d:.7s"><div class="scr"><div class="sk"></div><div class="sk"></div><div class="sk g"></div><div class="sk"></div><div class="sk t"></div></div><div class="cap">tablet · 2 columns</div></div>
+        <div class="dev phone a up" style="--d:1s"><div class="scr"><div class="sk"></div><div class="sk g"></div><div class="sk"></div><div class="sk t"></div></div><div class="cap">phone · ≤ 640 px</div></div>
+      </div>
+      <div class="slide-no">15</div>
+    </section>
+
+    <!-- 16 Thanks -->
+    <section class="slide" data-t="circle" aria-label="Thank you">
+      <p class="eyebrow a up" style="margin-top:auto">Summary &amp; future scope</p>
+      <div class="big-thanks" aria-label="Thank you">
+        <span style="--i:0">T</span><span style="--i:1">h</span><span style="--i:2">a</span><span style="--i:3">n</span><span style="--i:4">k</span>&nbsp;<span style="--i:6">y</span><span style="--i:7">o</span><span style="--i:8">u</span><span style="--i:9" class="hl">.</span>
+      </div>
+      <p class="a up" style="--d:.9s; margin-top:22px; max-width:820px">Python + Streamlit app, PostgreSQL storage, realistic API data, deployed on Railway and usable on any device. Questions welcome.</p>
+      <div class="future">
+        <span class="chip a pop" style="--d:1.2s">Next: email invoices</span>
+        <span class="chip a pop" style="--d:1.3s">Recurring invoices</span>
+        <span class="chip a pop" style="--d:1.4s">Multi-user roles</span>
+        <span class="chip a pop" style="--d:1.5s">Amazon SP-API connection</span>
+      </div>
+      <p class="a fade mono" style="--d:1.7s; margin-top:30px; font-size:14px">github.com/pats-speedlark/Automated-Invoicing-Expense-Tracker</p>
+      <div class="slide-no">16</div>
+    </section>
+
+  </div>
+</div>
+
+<div class="bar">
+  <button id="prev" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button id="next" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg></button>
+  <span class="count" id="count">1 / 16</span>
+  <div class="progress"><i id="prog"></i></div>
+  <span class="keys">← → or Space · click cards to flip</span>
+  <button id="fs" aria-label="Toggle fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</div>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var vp = document.getElementById('viewport');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var cur = -1, timers = [];
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fit() {
+    var s = Math.min(vp.clientWidth / 1280, vp.clientHeight / 720);
+    stage.style.setProperty('--s', Math.max(s, 0.1));
+  }
+  window.addEventListener('resize', fit); fit();
+
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  function countUp(el, delay) {
+    var target = +el.getAttribute('data-count'), sep = el.hasAttribute('data-sep');
+    var fmt = function (v) { return sep ? v.toLocaleString('en-IN') : String(v); };
+    if (reduce) { el.textContent = fmt(target); return; }
+    el.textContent = fmt(0);
+    timers.push(setTimeout(function () {
+      var t0 = performance.now(), dur = 1300;
+      (function step(now) {
+        var p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(Math.round(target * e));
+        if (p < 1 && slides[cur].contains(el)) requestAnimationFrame(step);
+      })(t0);
+    }, delay));
+  }
+
+  function typeOut(el) {
+    var text = el.getAttribute('data-type');
+    if (reduce) { el.textContent = text; return; }
+    el.textContent = '';
+    var cursor = document.createElement('span'); cursor.className = 'cursor';
+    var node = document.createTextNode(''); el.appendChild(node); el.appendChild(cursor);
+    var i = 0;
+    (function tick() {
+      if (i <= text.length) { node.nodeValue = text.slice(0, i); i++; timers.push(setTimeout(tick, text[i - 1] === '\n' ? 180 : 22)); }
+    })();
+  }
+
+  function enter(slide) {
+    slide.querySelectorAll('[data-count]').forEach(function (el, k) { countUp(el, 500 + k * 150); });
+    slide.querySelectorAll('[data-type]').forEach(function (el) { timers.push(setTimeout(function () { typeOut(el); }, 1000)); });
+    slide.querySelectorAll('.fc').forEach(function (fc) {
+      fc.classList.remove('flipped');
+      var d = parseFloat(fc.getAttribute('data-autoflip') || '0');
+      if (d) timers.push(setTimeout(function () { fc.classList.add('flipped'); }, reduce ? 0 : d * 1000));
+    });
+  }
+
+  function go(n, fromHash) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    if (n === cur) return;
+    clearTimers();
+    var back = n < cur;
+    slides.forEach(function (s) { s.classList.remove('leaving', 'back'); });
+    if (cur >= 0) {
+      var old = slides[cur];
+      old.classList.remove('active');
+      old.classList.add('leaving'); if (back) old.classList.add('back');
+      (function (o) { timers.push(setTimeout(function () { o.classList.remove('leaving', 'back'); }, 600)); })(old);
+    }
+    var s = slides[n];
+    s.classList.toggle('back', back);
+    void s.offsetWidth;
+    s.classList.add('active');
+    cur = n;
+    enter(s);
+    document.getElementById('count').textContent = (n + 1) + ' / ' + slides.length;
+    document.getElementById('prog').style.width = ((n + 1) / slides.length * 100) + '%';
+    if (!fromHash) { try { history.replaceState(null, '', '#s' + (n + 1)); } catch (e) { location.hash = 's' + (n + 1); } }
+  }
+
+  function fromHash() { var m = /^#s(\d+)$/.exec(location.hash); return m ? +m[1] - 1 : 0; }
+  window.addEventListener('hashchange', function () { go(fromHash(), true); });
+
+  document.getElementById('next').addEventListener('click', function () { go(cur + 1); });
+  document.getElementById('prev').addEventListener('click', function () { go(cur - 1); });
+  document.getElementById('fs').addEventListener('click', function () {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else { var p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(function () {}); }
+    } catch (e) {}
+  });
+  document.addEventListener('keydown', function (e) {
+    if (['ArrowRight', 'PageDown', ' ', 'Enter'].indexOf(e.key) > -1 && !(e.target.classList && e.target.classList.contains('fc'))) { e.preventDefault(); go(cur + 1); }
+    else if (['ArrowLeft', 'PageUp', 'Backspace'].indexOf(e.key) > -1) { e.preventDefault(); go(cur - 1); }
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(slides.length - 1);
+    else if (e.key === 'f') document.getElementById('fs').click();
+  });
+  document.querySelectorAll('.fc').forEach(function (fc) {
+    var flip = function (e) { e.stopPropagation(); fc.classList.toggle('flipped'); };
+    fc.addEventListener('click', flip);
+    fc.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(e); } });
+  });
+  var x0 = null;
+  vp.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  vp.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 45) go(cur + (dx < 0 ? 1 : -1));
+  });
+
+  go(fromHash(), true);
+})();
+</script>
