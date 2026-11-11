@@ -1,0 +1,482 @@
+<title>Invoicing &amp; Expense Tracker Report</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single readable report column with a sticky contents rail on wide screens. */
+:root {
+  --bg: #f7f8fc;
+  --surface: #ffffff;
+  --fg: #1b1f33;
+  --muted: #5d6380;
+  --line: #e1e4f0;
+  --accent: #4f46e5;
+  --accent-soft: #eceafd;
+  --code-bg: #f0f1f8;
+  --ok: #157f4a;
+  --ok-soft: #e3f5ea;
+  --warn: #9a5b00;
+  --warn-soft: #fdf1dc;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12141f; --surface: #1a1d2b; --fg: #e6e8f2; --muted: #9aa0bd; --line: #2b2f44;
+    --accent: #8f88ff; --accent-soft: #262646; --code-bg: #222538;
+    --ok: #5fd39a; --ok-soft: #173326; --warn: #f2b65a; --warn-soft: #3a2c14;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12141f; --surface: #1a1d2b; --fg: #e6e8f2; --muted: #9aa0bd; --line: #2b2f44;
+  --accent: #8f88ff; --accent-soft: #262646; --code-bg: #222538;
+  --ok: #5fd39a; --ok-soft: #173326; --warn: #f2b65a; --warn-soft: #3a2c14;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15.5px; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px;
+}
+.page { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 13.5px; }
+nav.toc p { font-family: var(--font-display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 11.5px; color: var(--muted); margin: 0 0 10px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 5px 10px; border-radius: 6px; counter-increment: toc; }
+nav.toc a::before { content: counter(toc) ". "; font-variant-numeric: tabular-nums; opacity: .7; }
+nav.toc a:hover, nav.toc a:focus-visible { background: var(--accent-soft); color: var(--fg); outline: none; }
+main { min-width: 0; }
+header.cover { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 8px; }
+.eyebrow { font-family: var(--font-display); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin: 0 0 10px; }
+h1 { font-family: var(--font-display); font-size: clamp(30px, 4.6vw, 44px); line-height: 1.1; margin: 0 0 14px; text-wrap: balance; letter-spacing: -.01em; }
+.lead { font-size: 17.5px; color: var(--muted); max-width: 64ch; margin: 0 0 22px; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.facts li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; font-size: 13px; }
+.facts b { font-weight: 600; }
+section { padding-top: 36px; scroll-margin-top: 20px; }
+h2 { font-family: var(--font-display); font-size: 25px; margin: 0 0 12px; text-wrap: balance; display: flex; gap: 12px; align-items: baseline; }
+h2 .n { font-size: 14px; color: var(--accent); font-variant-numeric: tabular-nums; }
+h3 { font-family: var(--font-display); font-size: 17.5px; margin: 26px 0 8px; }
+p { margin: 0 0 12px; max-width: 72ch; }
+ul, ol { margin: 0 0 12px; padding-left: 22px; max-width: 72ch; }
+li { margin-bottom: 4px; }
+a { color: var(--accent); }
+code { font-family: var(--font-mono); font-size: .88em; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+pre.code { font-family: var(--font-mono); font-size: 13px; line-height: 1.55; background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 0 0 14px; }
+pre.code code { background: none; padding: 0; }
+.table-wrap { overflow-x: auto; margin: 6px 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--bg); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.note { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 14px 18px; margin: 4px 0 16px; max-width: 76ch; }
+.note.warn { background: var(--warn-soft); border-color: transparent; }
+.note.ok { background: var(--ok-soft); border-color: transparent; }
+.note strong:first-child { display: block; font-family: var(--font-display); margin-bottom: 2px; }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.opt { background: var(--code-bg); color: var(--muted); }
+.diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin: 6px 0 12px; }
+.diagram svg { display: block; min-width: 760px; width: 100%; height: auto; }
+.diagram text { font-family: var(--font-body); fill: var(--fg); }
+.diagram .sub { fill: var(--muted); font-size: 11px; }
+.diagram .box { fill: var(--bg); stroke: var(--line); stroke-width: 1.2; }
+.diagram .box.key { fill: var(--accent-soft); stroke: var(--accent); }
+.diagram .zone { fill: none; stroke: var(--line); stroke-dasharray: 5 5; }
+.diagram .zl { fill: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-family: var(--font-display); }
+.diagram .edge { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+.diagram .elabel { fill: var(--muted); font-size: 10.5px; }
+.diagram .arrow { fill: var(--muted); }
+.steps { counter-reset: step; list-style: none; padding: 0; display: grid; gap: 10px; max-width: 76ch; }
+.steps > li { counter-increment: step; position: relative; padding: 12px 16px 12px 52px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin: 0; }
+.steps > li::before { content: counter(step); position: absolute; left: 14px; top: 12px; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--surface); font-family: var(--font-display); font-weight: 600; font-size: 13px; display: grid; place-items: center; }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+@media (max-width: 860px) {
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  nav.toc { position: static; margin-bottom: 20px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  body { padding-block: 24px 56px; font-size: 15px; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="page">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#stack">Technology stack</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#database">Database design</a></li>
+      <li><a href="#data">Data sources</a></li>
+      <li><a href="#deploy">Deployment on Railway</a></li>
+      <li><a href="#build">How it was built</a></li>
+      <li><a href="#testing">Testing</a></li>
+      <li><a href="#files">Files &amp; running locally</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="cover">
+      <p class="eyebrow">BCA 7th Semester Minor Project · Python Application Development</p>
+      <h1>Automated Invoicing &amp; Expense Tracker</h1>
+      <p class="lead">A web application written in Python that lets a small business manage customers, raise GST-style invoices with PDF export, record expenses and read profit-and-loss reports. It runs on Railway with a PostgreSQL database and works on laptops, tablets and phones.</p>
+      <ul class="facts">
+        <li><b>Language:</b> Python 3.12</li>
+        <li><b>UI:</b> Streamlit</li>
+        <li><b>Database:</b> PostgreSQL (SQLite locally)</li>
+        <li><b>Hosting:</b> Railway</li>
+        <li><b>Code:</b> 5 modules, 1,711 lines</li>
+        <li><b>Report date:</b> 11 Nov 2026</li>
+      </ul>
+    </header>
+
+    <section id="overview">
+      <h2><span class="n">01</span>Overview</h2>
+      <p>The app replaces spreadsheets and paper invoices for a freelancer or small shop. It has seven pages: Dashboard, Reports, New invoice, Invoices, Customers, Expenses and Settings.</p>
+      <p>The starting point was a single-file Streamlit prototype (<code>app.py</code>, about 450 lines). It stored data in JSON and CSV files, supported one item per invoice, and had no deployment configuration. When it was deployed to Railway it did not start. This version restructures it into separate modules, adds a real database, adds the missing features, makes the layout responsive and fixes the deployment.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Area</th><th>Original prototype</th><th>Current version</th></tr></thead>
+        <tbody>
+          <tr><td>Storage</td><td>JSON + CSV files on disk</td><td>PostgreSQL via SQLAlchemy; SQLite as local fallback</td></tr>
+          <tr><td>Invoices</td><td>One item, fixed status</td><td>Many line items, per-line tax, discount, due date, overdue tracking, PDF</td></tr>
+          <tr><td>Customers / expenses</td><td>Add and delete only</td><td>Add, edit, delete, search and filter</td></tr>
+          <tr><td>Reports</td><td>Four totals, CSV download</td><td>Any date range, monthly P&amp;L chart, top customers, Excel export</td></tr>
+          <tr><td>Layout</td><td>Desktop only</td><td>Responsive for laptop, tablet and phone</td></tr>
+          <tr><td>Deployment</td><td>No start command; 502 on Railway</td><td>Railway config, health check and launcher script</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="architecture">
+      <h2><span class="n">02</span>Architecture</h2>
+      <p>The browser talks to one Python web service on Railway. The service is split into a UI layer, a storage layer and two helper modules. Only the storage layer talks to the database.</p>
+      <div class="diagram" role="img" aria-label="Architecture diagram: browser to Railway web service running start.py and app.py, which uses db.py, pdf_utils.py and sample_data.py; db.py connects to PostgreSQL; sample_data.py calls the DummyJSON API.">
+        <svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow" d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+          <!-- zones -->
+          <rect class="zone" x="190" y="20" width="490" height="360" rx="12"/>
+          <text class="zl" x="206" y="42">Railway · web service</text>
+          <rect class="zone" x="700" y="20" width="185" height="360" rx="12"/>
+          <text class="zl" x="716" y="42">External</text>
+
+          <!-- browser -->
+          <rect class="box" x="15" y="160" width="150" height="70" rx="10"/>
+          <text x="90" y="190" text-anchor="middle" font-weight="600" font-size="14">Browser</text>
+          <text class="sub" x="90" y="208" text-anchor="middle">laptop · tablet · phone</text>
+
+          <!-- start.py -->
+          <rect class="box" x="210" y="60" width="200" height="56" rx="10"/>
+          <text x="310" y="84" text-anchor="middle" font-weight="600" font-size="13.5">start.py</text>
+          <text class="sub" x="310" y="102" text-anchor="middle">reads $PORT, launches server</text>
+
+          <!-- app.py -->
+          <rect class="box key" x="210" y="160" width="200" height="70" rx="10"/>
+          <text x="310" y="188" text-anchor="middle" font-weight="600" font-size="14">app.py</text>
+          <text class="sub" x="310" y="206" text-anchor="middle">Streamlit UI · 7 pages</text>
+
+          <!-- db.py -->
+          <rect class="box" x="460" y="80" width="200" height="56" rx="10"/>
+          <text x="560" y="104" text-anchor="middle" font-weight="600" font-size="13.5">db.py</text>
+          <text class="sub" x="560" y="122" text-anchor="middle">SQLAlchemy storage layer</text>
+
+          <!-- pdf_utils -->
+          <rect class="box" x="460" y="168" width="200" height="56" rx="10"/>
+          <text x="560" y="192" text-anchor="middle" font-weight="600" font-size="13.5">pdf_utils.py</text>
+          <text class="sub" x="560" y="210" text-anchor="middle">ReportLab invoice PDF</text>
+
+          <!-- sample_data -->
+          <rect class="box" x="460" y="256" width="200" height="56" rx="10"/>
+          <text x="560" y="280" text-anchor="middle" font-weight="600" font-size="13.5">sample_data.py</text>
+          <text class="sub" x="560" y="298" text-anchor="middle">demo data · Amazon import</text>
+
+          <!-- postgres -->
+          <rect class="box key" x="715" y="70" width="155" height="76" rx="10"/>
+          <text x="792" y="98" text-anchor="middle" font-weight="600" font-size="13.5">PostgreSQL</text>
+          <text class="sub" x="792" y="116" text-anchor="middle">Railway database</text>
+          <text class="sub" x="792" y="132" text-anchor="middle">(SQLite file if unset)</text>
+
+          <!-- dummyjson -->
+          <rect class="box" x="715" y="246" width="155" height="76" rx="10"/>
+          <text x="792" y="274" text-anchor="middle" font-weight="600" font-size="13.5">DummyJSON API</text>
+          <text class="sub" x="792" y="292" text-anchor="middle">/users · /carts</text>
+          <text class="sub" x="792" y="308" text-anchor="middle">over HTTPS</text>
+
+          <!-- edges -->
+          <path class="edge" d="M165,195 L208,195" marker-end="url(#ah)"/>
+          <text class="elabel" x="168" y="186">HTTPS</text>
+          <path class="edge" d="M310,116 L310,158" marker-end="url(#ah)"/>
+          <text class="elabel" x="316" y="142">runs</text>
+          <path class="edge" d="M410,180 L458,116" marker-end="url(#ah)"/>
+          <path class="edge" d="M410,196 L458,196" marker-end="url(#ah)"/>
+          <path class="edge" d="M410,212 L458,276" marker-end="url(#ah)"/>
+          <path class="edge" d="M660,108 L713,108" marker-end="url(#ah)"/>
+          <text class="elabel" x="664" y="100">SQL</text>
+          <path class="edge" d="M660,284 L713,284" marker-end="url(#ah)"/>
+          <text class="elabel" x="664" y="276">JSON</text>
+          <path class="edge" d="M560,256 L560,138" marker-end="url(#ah)"/>
+          <text class="elabel" x="566" y="244">imports via</text>
+        </svg>
+      </div>
+      <p>A request flows like this: Railway sets the <code>PORT</code> variable, <code>start.py</code> starts the Streamlit server on it, and every page in <code>app.py</code> reads and writes through functions in <code>db.py</code>. Sample data and Amazon imports are converted by <code>sample_data.py</code> and then saved through the same <code>db.py</code> import function.</p>
+    </section>
+
+    <section id="stack">
+      <h2><span class="n">03</span>Technology stack</h2>
+      <p>All application code is <strong>Python</strong>. The small amount of CSS for responsive layout is embedded in <code>app.py</code>. Configuration files are JSON and TOML.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Layer</th><th>Technology</th><th>Version</th><th>Why it was used</th></tr></thead>
+        <tbody>
+          <tr><td>Language</td><td>Python</td><td>3.12</td><td>Course language; strong data and PDF libraries</td></tr>
+          <tr><td>Web UI</td><td>Streamlit</td><td>≥ 1.50</td><td>Builds interactive pages, forms and tables in pure Python, no separate frontend</td></tr>
+          <tr><td>Data handling</td><td>pandas</td><td>≥ 2.2</td><td>Filtering, grouping by month and category, CSV/Excel export</td></tr>
+          <tr><td>Charts</td><td>Plotly</td><td>≥ 5.20</td><td>Interactive bar, pie and line charts that resize on mobile</td></tr>
+          <tr><td>PDF</td><td>ReportLab</td><td>≥ 4.0</td><td>Generates invoice PDFs with tables and totals</td></tr>
+          <tr><td>Database access</td><td>SQLAlchemy</td><td>≥ 2.0</td><td>One code path for both PostgreSQL and SQLite</td></tr>
+          <tr><td>Postgres driver</td><td>psycopg (binary)</td><td>≥ 3.1</td><td>Modern PostgreSQL driver; binary build needs no compiler on Railway</td></tr>
+          <tr><td>Excel export</td><td>openpyxl</td><td>≥ 3.1</td><td>Writes the .xlsx report</td></tr>
+          <tr><td>Database</td><td>PostgreSQL</td><td>Railway managed</td><td>Data survives redeploys; Railway adds it in one click</td></tr>
+          <tr><td>Hosting</td><td>Railway (Railpack builder)</td><td>—</td><td>Deploys from GitHub on every push, free HTTPS domain</td></tr>
+          <tr><td>Version control</td><td>Git + GitHub</td><td>—</td><td>Source history; Railway watches the <code>main</code> branch</td></tr>
+          <tr><td>Testing tools</td><td>Playwright (Chromium), local PostgreSQL 16</td><td>—</td><td>Browser checks at three screen sizes; database tests</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="features">
+      <h2><span class="n">04</span>Features</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Page</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><b>Dashboard</b></td><td>Income received, total expenses, outstanding and overdue amounts, net profit; 12-month income vs expense chart; expenses by category; recent invoices; invoices due in the next 7 days</td></tr>
+          <tr><td><b>New invoice</b></td><td>Pick a customer; dates default from payment terms; spreadsheet-style grid for line items (description, qty, unit price, tax %); discount, notes and status; live subtotal, tax and total; PDF download after saving</td></tr>
+          <tr><td><b>Invoices</b></td><td>Search, status filter and period filter; detail card with items; mark paid or unpaid, cancel or reopen, duplicate, edit due date and notes, delete with confirmation; PDF download</td></tr>
+          <tr><td><b>Customers</b></td><td>Add with validation (required name and email, no duplicate emails); company and GSTIN fields; search; total billed per customer; edit and delete</td></tr>
+          <tr><td><b>Expenses</b></td><td>Date, category, vendor, description, amount, payment method; filter by category, date range and text; edit or delete rows directly in a grid, then save</td></tr>
+          <tr><td><b>Reports</b></td><td>This month, last 3 or 12 months, this year, all time or a custom range; billed, received, expenses, net profit and margin; tax collected; P&amp;L, customers and expense tabs; CSV and Excel export</td></tr>
+          <tr><td><b>Settings</b></td><td>Business profile printed on PDFs; currency, default tax, invoice prefix and next number, payment terms, footer; current storage type; load or remove sample data; Amazon order import; JSON backup and restore</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Business rules</h3>
+      <ul>
+        <li>Invoice numbers are sequential (<code>INV-1001</code>, <code>INV-1002</code>, …) and are generated inside the same database transaction as the insert, skipping any number already used.</li>
+        <li>Totals: subtotal = Σ qty × price; tax = Σ qty × price × tax% ÷ 100; total = subtotal + tax − discount, with the discount capped so the total never goes negative.</li>
+        <li>A <em>Pending</em> invoice whose due date has passed is shown as <em>Overdue</em>. This is calculated when displayed, so it is always current.</li>
+        <li>Income counts only <em>Paid</em> invoices; <em>Cancelled</em> invoices are excluded from billed totals.</li>
+      </ul>
+      <h3>Responsive design and security</h3>
+      <ul>
+        <li>Custom CSS media queries: above 1024 px the layout uses full rows of columns; from 641 to 1024 px (tablet) columns wrap two per row; at 640 px and below (phone) everything stacks in one column with full-width buttons. The sidebar menu folds into a button on small screens.</li>
+        <li>Framework menus, the deploy button and the footer are hidden so the app looks like a standalone product.</li>
+        <li>Optional login: if the <code>APP_PASSWORD</code> variable is set, a sign-in screen appears. The password is compared with <code>hmac.compare_digest</code> to avoid timing attacks.</li>
+        <li>All database writes use SQLAlchemy parameterised statements, so user input cannot inject SQL.</li>
+      </ul>
+    </section>
+
+    <section id="database">
+      <h2><span class="n">05</span>Database design</h2>
+      <p>Four tables are defined once in <code>db.py</code> with SQLAlchemy Core and created automatically on first start (<code>metadata.create_all</code>). The same definitions work on PostgreSQL and SQLite.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Table</th><th>Key columns</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>customers</code></td><td><code>id</code> PK, name, email, phone, company, tax_id, address, created_at</td><td>Client records</td></tr>
+          <tr><td><code>invoices</code></td><td><code>id</code> PK, <code>number</code> unique, customer_id, customer name/email/address snapshot, issue_date, due_date, status, <code>items</code> (JSON), discount, subtotal, tax, total, notes, paid_date</td><td>Invoices; line items stored as a JSON list</td></tr>
+          <tr><td><code>expenses</code></td><td><code>id</code> PK, date, category, vendor, description, amount, payment_method</td><td>Spending records</td></tr>
+          <tr><td><code>settings</code></td><td><code>key</code> PK, value</td><td>Business profile and invoice preferences</td></tr>
+        </tbody>
+      </table></div>
+      <p>Customer details are copied onto each invoice when it is created, so an old invoice still shows the address it was issued to even if the customer is later edited or deleted. Line items are kept as JSON because they are always read and written together with their invoice.</p>
+      <h3>Choosing PostgreSQL or SQLite</h3>
+      <pre class="code"><code>DATABASE_URL set?   yes → PostgreSQL  (postgres:// is rewritten to postgresql+psycopg://)
+                    no  → SQLite file at data/finance.db</code></pre>
+      <p>On first start the app also imports any old <code>data/customers.json</code>, <code>invoices.json</code> and <code>expenses.csv</code> from the prototype, so earlier data is not lost.</p>
+    </section>
+
+    <section id="data">
+      <h2><span class="n">06</span>Data sources</h2>
+      <p>The app holds the user's own data. For demonstration it can load a realistic sample dataset, and real Amazon sellers can import their own orders.</p>
+
+      <h3>Sample dataset: DummyJSON API</h3>
+      <p>Clicking <b>Load sample data</b> fetches two endpoints from <a href="https://dummyjson.com" target="_blank" rel="noopener">DummyJSON</a>, a free public test-data API for e-commerce apps. No key is needed.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Endpoint</th><th>Gives</th><th>Becomes</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET /users?limit=0</code></td><td>Names, emails, phones, addresses, companies</td><td>Customers</td></tr>
+          <tr><td><code>GET /carts?limit=0</code></td><td>Shopping carts: products, quantities, prices, discounts, user id</td><td>Invoices (one cart = one order = one invoice)</td></tr>
+        </tbody>
+      </table></div>
+      <p>The conversion steps in <code>sample_data.py</code> are:</p>
+      <ol>
+        <li>Prices are converted from USD to INR at ₹83 per dollar when the currency is ₹.</li>
+        <li>Orders are spread across the last 12 months.</li>
+        <li>Statuses follow a realistic pattern. About 4% are cancelled. Orders older than 45 days are mostly paid (92%), and newer ones are about half paid.</li>
+        <li>Twelve recurring business expenses are generated monthly or fortnightly: rent, salaries, utilities, software, ads, shipping, packaging and GST. They are scaled so the costs come to about 65% of revenue, giving a profitable demo business.</li>
+        <li>Every sample record's id starts with <code>sample-</code>, so <b>Remove sample data</b> deletes exactly those records and nothing else.</li>
+      </ol>
+      <p>If the API cannot be reached, the app uses a built-in generator instead: 40 Indian customers in 10 cities, 180 orders from a 26-product catalogue with INR prices, and the same expense pattern. A fixed random seed (42) means the demo looks the same every time.</p>
+
+      <h3>Real data: Amazon Seller Central import</h3>
+      <div class="note warn"><strong>Why not an Amazon API?</strong>Amazon has no public API that returns customer data, for privacy reasons. The <em>Selling Partner API</em> returns only a seller's own orders and requires a registered developer app with OAuth credentials. The <em>Product Advertising API</em> returns catalogue data only and requires an approved Associates account.</div>
+      <p>Instead, a seller downloads the <b>All Orders</b> report from Seller Central (Reports → Order Reports, a tab- or comma-separated file) and uploads it in Settings. The importer:</p>
+      <ul>
+        <li>reads columns such as <code>amazon-order-id</code>, <code>purchase-date</code>, <code>order-status</code>, <code>product-name</code>, <code>quantity</code>, <code>item-price</code>, <code>item-tax</code>, <code>buyer-name</code> and <code>ship-city</code></li>
+        <li>groups rows that share an order id into one invoice with several line items</li>
+        <li>works out the tax % from item tax ÷ item price, and subtracts promotion discounts</li>
+        <li>maps Shipped to <em>Paid</em>, Pending or Unshipped to <em>Pending</em>, and Cancelled to <em>Cancelled</em></li>
+        <li>gives each order a stable id, so re-uploading the same report does not create duplicates</li>
+      </ul>
+    </section>
+
+    <section id="deploy">
+      <h2><span class="n">07</span>Deployment on Railway</h2>
+      <p>Railway builds and runs the app straight from the GitHub repository. Every push to <code>main</code> triggers a new build and deploy.</p>
+      <h3>Steps</h3>
+      <ol class="steps">
+        <li><b>Create the service.</b> New Project → Deploy from GitHub repo → <code>Automated-Invoicing-Expense-Tracker</code>, branch <code>main</code>.</li>
+        <li><b>Build.</b> Railway's Railpack builder detects Python from <code>requirements.txt</code> and <code>.python-version</code> (3.12), then installs the packages with pip.</li>
+        <li><b>Add the database.</b> New → Database → PostgreSQL. Railway creates a managed Postgres service in the same project.</li>
+        <li><b>Connect them.</b> On the app service, under Variables, add <code>DATABASE_URL = ${{Postgres.DATABASE_URL}}</code>. This is a reference variable, so Railway fills in the real connection string.</li>
+        <li><b>Start.</b> Railway runs the start command from <code>railway.json</code>: <code>python start.py</code>. This starts the server on <code>0.0.0.0:$PORT</code>.</li>
+        <li><b>Health check.</b> Railway requests <code>/_stcore/health</code> and sends traffic only after it answers <code>ok</code> (timeout 120 s). If the process crashes, it is restarted up to 5 times.</li>
+        <li><b>Public URL.</b> Settings → Networking → Generate Domain gives a free <code>*.up.railway.app</code> HTTPS address. Its target port must match the port shown in the deploy log.</li>
+        <li><b>First run.</b> The app creates its tables in Postgres automatically. The sidebar shows <span class="pill ok">Storage: PostgreSQL</span>.</li>
+      </ol>
+
+      <h3>Environment variables</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Variable</th><th>Set on</th><th>Value</th><th>Required</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>DATABASE_URL</code></td><td>App service</td><td><code>${{Postgres.DATABASE_URL}}</code></td><td><span class="pill">Yes</span></td><td>Connects the app to PostgreSQL. Without it the app uses SQLite, which Railway erases on each redeploy.</td></tr>
+          <tr><td><code>PORT</code></td><td>Set by Railway</td><td>Automatic (e.g. 8080)</td><td><span class="pill ok">Auto</span></td><td>Port the app must listen on; read by <code>start.py</code></td></tr>
+          <tr><td><code>APP_PASSWORD</code></td><td>App service</td><td>Any password</td><td><span class="pill opt">Optional</span></td><td>Shows a sign-in screen before the app opens</td></tr>
+          <tr><td><code>DATA_DIR</code></td><td>App service</td><td>e.g. <code>/data</code></td><td><span class="pill opt">Optional</span></td><td>Folder for the SQLite file, only if using a Railway volume instead of Postgres</td></tr>
+          <tr><td><code>PGHOST</code>, <code>PGUSER</code>, <code>PGPASSWORD</code>, …</td><td>Postgres service</td><td>Created by Railway</td><td><span class="pill ok">Auto</span></td><td>Parts of the connection string; the app only needs <code>DATABASE_URL</code></td></tr>
+        </tbody>
+      </table></div>
+      <p>No passwords are stored in the code or the repository. <code>.env.example</code> lists the variable names, and <code>.gitignore</code> excludes <code>.env</code> and the local <code>data/</code> folder.</p>
+
+      <h3>Deployment files</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>File</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr><td><code>railway.json</code></td><td>Builder RAILPACK; start command <code>python start.py</code>; health check <code>/_stcore/health</code>; restart on failure, 5 retries</td></tr>
+          <tr><td><code>start.py</code></td><td>Reads <code>PORT</code> (default 8501) and starts Streamlit on <code>0.0.0.0</code> in headless mode</td></tr>
+          <tr><td><code>Procfile</code></td><td><code>web: python start.py</code>, a fallback for platforms that read Procfiles</td></tr>
+          <tr><td><code>.python-version</code></td><td><code>3.12</code></td></tr>
+          <tr><td><code>requirements.txt</code></td><td>The seven Python packages listed in section 3</td></tr>
+          <tr><td><code>.streamlit/config.toml</code></td><td>Headless server, 50 MB upload limit, usage statistics off, minimal toolbar, indigo theme colour</td></tr>
+        </tbody>
+      </table></div>
+      <pre class="code"><code>{
+  "build":  { "builder": "RAILPACK" },
+  "deploy": {
+    "startCommand": "python start.py",
+    "healthcheckPath": "/_stcore/health",
+    "healthcheckTimeout": 120,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5
+  }
+}</code></pre>
+
+      <h3>Problems met and how they were fixed</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>App did not launch on Railway</td><td>The repository had no start command, so Railway did not know how to run a Streamlit app</td><td>Added <code>railway.json</code> and <code>Procfile</code> with a start command</td></tr>
+          <tr><td>502 Bad Gateway after adding Postgres and a domain</td><td>The fix was on a feature branch; Railway was still deploying the old <code>main</code> branch</td><td>Merged the work into <code>main</code></td></tr>
+          <tr><td>Risk of 502 from the port</td><td>Streamlit listens on 8501 by default, but Railway routes traffic to <code>$PORT</code>; shell expansion in start commands is not guaranteed</td><td><code>start.py</code> reads <code>PORT</code> in Python and binds to <code>0.0.0.0</code></td></tr>
+          <tr><td>Data disappearing after redeploy</td><td>Railway containers have a temporary disk</td><td>Moved storage to PostgreSQL through <code>DATABASE_URL</code></td></tr>
+          <tr><td>Slow or unreachable database could hang pages</td><td>No connection timeout</td><td>10-second <code>connect_timeout</code> and <code>pool_pre_ping</code>; a clear error message if the database is unreachable</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="build">
+      <h2><span class="n">08</span>How it was built</h2>
+      <p>The work followed the order below. Development was done with <b>Claude Code</b>, an AI coding assistant, which wrote and tested the changes from my requirements. I then reviewed, deployed and checked the results on Railway.</p>
+      <ol class="steps">
+        <li><b>Analysed the prototype</b>: one 450-line file, JSON/CSV storage, no deployment config. Identified why Railway could not start it.</li>
+        <li><b>Designed the storage layer</b> (<code>db.py</code>): table definitions, PostgreSQL/SQLite switch, create/read/update/delete functions, invoice numbering, backup and restore, migration of old files.</li>
+        <li><b>Rewrote the PDF generator</b> (<code>pdf_utils.py</code>) with a business header, bill-to block, items table and totals.</li>
+        <li><b>Rebuilt the UI</b> (<code>app.py</code>) as seven pages with grouped navigation, Plotly charts, editable grids and responsive CSS.</li>
+        <li><b>Added the data features</b> (<code>sample_data.py</code>): DummyJSON loader, offline generator and Amazon order importer.</li>
+        <li><b>Added deployment config</b>: <code>railway.json</code>, <code>Procfile</code>, <code>.python-version</code>, Streamlit config, then <code>start.py</code>.</li>
+        <li><b>Tested</b> locally against SQLite and a real PostgreSQL 16 server, and in a headless browser (section 9).</li>
+        <li><b>Deployed</b>: pushed to GitHub, merged to <code>main</code>, connected Railway Postgres, generated the domain.</li>
+      </ol>
+      <h3>Commit history (main branch)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Commit</th><th>Change</th></tr></thead>
+        <tbody>
+          <tr><td><code>6c65677</code></td><td>Hid framework branding; updated documentation</td></tr>
+          <tr><td><code>8e476fe</code></td><td>Added <code>start.py</code> launcher for Railway; Postgres connect timeout</td></tr>
+          <tr><td><code>5937815</code></td><td>Redesigned the UI, added PostgreSQL storage and new features, added Railway config</td></tr>
+          <tr><td><code>0e2a95c</code></td><td>Removed PDF download button from the invoice section (prototype)</td></tr>
+          <tr><td><code>2414872</code></td><td>Fixed formatting in requirements.txt</td></tr>
+          <tr><td><code>c53625a</code></td><td>Added initial requirements</td></tr>
+          <tr><td><code>693092b</code></td><td>Initial prototype</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="testing">
+      <h2><span class="n">09</span>Testing</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Test</th><th>Method</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Storage on PostgreSQL</td><td>Ran the app's database functions against a local PostgreSQL 16 server: load sample data, list invoices, change status, export backup</td><td><span class="pill ok">Passed</span></td></tr>
+          <tr><td>Storage on SQLite</td><td>Same functions with no <code>DATABASE_URL</code></td><td><span class="pill ok">Passed</span></td></tr>
+          <tr><td>All pages, three screen sizes</td><td>Playwright opened all 7 pages at 1440×900 (laptop), 820×1180 (tablet) and 390×844 (phone), checking for errors and sideways scrolling</td><td><span class="pill ok">No errors, no overflow</span></td></tr>
+          <tr><td>Create invoice in the browser</td><td>Typed a line item into the grid, clicked Create, downloaded the PDF</td><td><span class="pill ok">Passed</span></td></tr>
+          <tr><td>Invoice PDF</td><td>Generated a 3-item invoice and rendered it to an image to inspect the layout and totals</td><td><span class="pill ok">Passed</span></td></tr>
+          <tr><td>Amazon import</td><td>Sample report with 2 orders (one with 2 items); re-imported to check duplicates are skipped</td><td><span class="pill ok">2 imported, 0 on re-import</span></td></tr>
+          <tr><td>Sample data remove / reload</td><td>Removed sample rows, confirmed imported Amazon rows remained, reloaded</td><td><span class="pill ok">Passed</span></td></tr>
+          <tr><td>Railway start command</td><td>Ran <code>python start.py</code> with a custom <code>PORT</code> and called <code>/_stcore/health</code></td><td><span class="pill ok">Returned ok</span></td></tr>
+          <tr><td>Live DummyJSON fetch</td><td>Not reachable from the build sandbox; the offline fallback was used. Expected to work from Railway, which has internet access</td><td><span class="pill opt">Verify on Railway</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="files">
+      <h2><span class="n">10</span>Project files &amp; running locally</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>File</th><th>Lines</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td><code>app.py</code></td><td class="num">827</td><td>UI: pages, navigation, login, responsive CSS</td></tr>
+          <tr><td><code>db.py</code></td><td class="num">476</td><td>Storage layer, business calculations, backup/restore, sample-data management</td></tr>
+          <tr><td><code>sample_data.py</code></td><td class="num">275</td><td>DummyJSON loader, offline generator, Amazon importer</td></tr>
+          <tr><td><code>pdf_utils.py</code></td><td class="num">112</td><td>Invoice PDF</td></tr>
+          <tr><td><code>start.py</code></td><td class="num">21</td><td>Production launcher</td></tr>
+          <tr><td><b>Total Python</b></td><td class="num"><b>1,711</b></td><td></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Run on your own computer</h3>
+      <pre class="code"><code>git clone https://github.com/pats-speedlark/Automated-Invoicing-Expense-Tracker
+cd Automated-Invoicing-Expense-Tracker
+pip install -r requirements.txt
+python start.py          # then open http://localhost:8501</code></pre>
+      <p>To use PostgreSQL locally, set <code>DATABASE_URL=postgresql://user:password@localhost:5432/dbname</code> before starting.</p>
+      <h3>Possible extensions</h3>
+      <ul>
+        <li>Email invoices to customers directly from the app</li>
+        <li>Recurring invoices for monthly clients</li>
+        <li>Multiple user accounts with roles</li>
+        <li>Direct Amazon Selling Partner API connection for sellers with developer access</li>
+      </ul>
+    </section>
+
+    <footer>
+      Source: github.com/pats-speedlark/Automated-Invoicing-Expense-Tracker · Report prepared 11 November 2026
+    </footer>
+  </main>
+</div>
