@@ -373,55 +373,6 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
       <div class="slide-no">01</div>
     </section>
 
-    <!-- 2 Problem -->
-    <section class="slide" data-t="wipe" aria-label="Before and after">
-      <p class="eyebrow a up">The starting point</p>
-      <h2 class="a up" style="--d:.1s">From a prototype that would not launch to a deployed product</h2>
-      <div class="compare">
-        <div class="before a left" style="--d:.3s">
-          <h3>Original prototype</h3>
-          <ul>
-            <li>One 450-line file</li>
-            <li>Data in JSON / CSV files</li>
-            <li>One item per invoice</li>
-            <li>Add and delete only</li>
-            <li>Desktop-only layout</li>
-            <li>No start command: Railway returned 502</li>
-          </ul>
-        </div>
-        <div class="after a right" style="--d:.6s">
-          <h3>Current version</h3>
-          <ul>
-            <li>5 modules, 1,711 lines</li>
-            <li>PostgreSQL through SQLAlchemy</li>
-            <li>Multi-line invoices with tax &amp; discount</li>
-            <li>Edit, search, filter, reports, export</li>
-            <li>Laptop, tablet and phone layouts</li>
-            <li>Live on Railway with a health check</li>
-          </ul>
-        </div>
-      </div>
-      <div class="slide-no">02</div>
-    </section>
-
-    <!-- 3 Numbers -->
-    <section class="slide" data-t="rise" aria-label="Project in numbers">
-      <p class="eyebrow a up">In numbers</p>
-      <h2 class="a up" style="--d:.1s">The project at a glance</h2>
-      <div class="grid g4" style="margin-top:30px">
-        <div class="stat a up" style="--d:.2s"><div class="num" data-count="7">7</div><div class="lbl">app pages</div><div class="bar a grow" style="--d:.4s"></div></div>
-        <div class="stat a up" style="--d:.35s"><div class="num" data-count="4">4</div><div class="lbl">database tables</div><div class="bar a grow" style="--d:.55s"></div></div>
-        <div class="stat a up" style="--d:.5s"><div class="num" data-count="1711" data-sep="1">1,711</div><div class="lbl">lines of Python</div><div class="bar a grow" style="--d:.7s"></div></div>
-        <div class="stat a up" style="--d:.65s"><div class="num"><span data-count="3">3</span><small> sizes</small></div><div class="lbl">laptop · tablet · phone tested</div><div class="bar a grow" style="--d:.85s"></div></div>
-      </div>
-      <div class="grid g3" style="margin-top:56px">
-        <div class="card a flipin" style="--d:.9s"><h3>7 Python packages</h3><p>Streamlit, pandas, Plotly, ReportLab, SQLAlchemy, psycopg, openpyxl</p></div>
-        <div class="card a flipin" style="--d:1.05s"><h3>2 data sources</h3><p>DummyJSON sample API and Amazon Seller Central order reports</p></div>
-        <div class="card a flipin" style="--d:1.2s"><h3>1 click deploys</h3><p>Every push to <span class="mono hi">main</span> rebuilds the app on Railway</p></div>
-      </div>
-      <div class="slide-no">03</div>
-    </section>
-
     <!-- 4 Architecture -->
     <section class="slide" data-t="blur" aria-label="Architecture">
       <p class="eyebrow a up">Architecture</p>
@@ -459,7 +410,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
 
         </svg>
       </div>
-      <div class="slide-no">04</div>
+      <div class="slide-no">02</div>
     </section>
 
     <!-- 5 Stack -->
@@ -477,7 +428,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         <div class="tech a pop" style="--d:.9s"><div class="k">Hosting</div><div class="v">Railway</div><p>Builds from GitHub, free HTTPS domain</p></div>
       </div>
       <p class="a fade" style="--d:1.2s; margin-top:26px; font-size:16px">Also used: openpyxl for Excel export · Git and GitHub for version control · Playwright and PostgreSQL 16 for testing</p>
-      <div class="slide-no">05</div>
+      <div class="slide-no">03</div>
     </section>
 
     <!-- 6 Features -->
@@ -493,7 +444,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         <div class="card a up" style="--d:.7s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></span>Reports</h3><p>Any date range, P&amp;L, top customers, Excel export.</p></div>
         <div class="card a up" style="--d:.8s"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></span>Settings</h3><p>Business profile, numbering, backup, sample data.</p></div>
       </div>
-      <div class="slide-no">06</div>
+      <div class="slide-no">04</div>
     </section>
 
     <!-- 7 Invoice workflow -->
@@ -511,21 +462,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         subtotal = Σ qty × price <span class="c">·</span> tax = Σ qty × price × tax% ÷ 100<br>
         total = subtotal + tax − discount <span class="c">  # discount capped so total ≥ 0</span>
       </div>
-      <div class="slide-no">07</div>
-    </section>
-
-    <!-- 8 Database -->
-    <section class="slide" data-t="zoom" aria-label="Database design">
-      <p class="eyebrow a up">Database design</p>
-      <h2 class="a up" style="--d:.1s">Four tables, two databases, one code path</h2>
-      <div class="tables">
-        <div class="tbl a flipin" style="--d:.2s"><div class="th">customers</div><ul><li class="pk">id  PK</li><li>name</li><li>email</li><li>phone · company</li><li>tax_id · address</li></ul></div>
-        <div class="tbl a flipin" style="--d:.35s"><div class="th">invoices</div><ul><li class="pk">id  PK · number UNIQUE</li><li>customer snapshot</li><li>issue / due / paid date</li><li>status</li><li class="js">items  JSON</li><li>subtotal · tax · total</li></ul></div>
-        <div class="tbl a flipin" style="--d:.5s"><div class="th">expenses</div><ul><li class="pk">id  PK</li><li>date · category</li><li>vendor · description</li><li>amount</li><li>payment_method</li></ul></div>
-        <div class="tbl a flipin" style="--d:.65s"><div class="th">settings</div><ul><li class="pk">key  PK</li><li>value</li><li>business profile</li><li>currency · tax · prefix</li></ul></div>
-      </div>
-      <div class="code" data-type="# db.py: choose the database at startup&#10;url = os.environ.get(&quot;DATABASE_URL&quot;)&#10;engine = create_engine(url or &quot;sqlite:///data/finance.db&quot;)&#10;metadata.create_all(engine)   # tables created automatically"></div>
-      <div class="slide-no">08</div>
+      <div class="slide-no">05</div>
     </section>
 
     <!-- 9 Data sources -->
@@ -540,56 +477,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         <div class="card a up" style="--d:1s"><h3>3 · Save</h3><p style="font-size:15px">Through <span class="mono hi">db.py</span> into PostgreSQL</p><ul><li>IDs start with <span class="mono hl">sample-</span></li><li>Removable in one click</li><li>Offline generator if API is down</li></ul></div>
       </div>
       <div class="note a up" style="--d:1.3s"><b>Real Amazon data?</b> Amazon has no public API for customer data. The Selling Partner API returns only a seller's own orders and needs a registered developer app. So the app imports the <b>All Orders report</b> a seller downloads from Seller Central: each Amazon order becomes an invoice.</div>
-      <div class="slide-no">09</div>
-    </section>
-
-    <!-- 10 Sample realism chart -->
-    <section class="slide" data-t="circle" aria-label="Sample data rules">
-      <p class="eyebrow a up">Making demo data believable</p>
-      <h2 class="a up" style="--d:.1s">Rules applied to the sample orders</h2>
-      <div class="chart">
-        <div class="r a fade" style="--d:.2s"><div class="lab">Orders older than 45 days marked paid</div><div class="trk"><div class="fill a grow" style="--d:.3s; width:92%; background:var(--paid)"></div></div><div class="val"><span data-count="92">92</span>%</div></div>
-        <div class="r a fade" style="--d:.4s"><div class="lab">Recent orders (≤ 45 days) marked paid</div><div class="trk"><div class="fill a grow" style="--d:.5s; width:45%; background:var(--due)"></div></div><div class="val"><span data-count="45">45</span>%</div></div>
-        <div class="r a fade" style="--d:.6s"><div class="lab">Expenses as a share of revenue</div><div class="trk"><div class="fill a grow" style="--d:.7s; width:65%; background:var(--indigo)"></div></div><div class="val"><span data-count="65">65</span>%</div></div>
-        <div class="r a fade" style="--d:.8s"><div class="lab">Orders cancelled</div><div class="trk"><div class="fill a grow" style="--d:.9s; width:4%; background:var(--over)"></div></div><div class="val"><span data-count="4">4</span>%</div></div>
-      </div>
-      <p class="a up" style="--d:1.3s; margin-top:34px; font-size:17px">Offline fallback: 40 customers in 10 Indian cities, 180 orders from a 26-product catalogue, fixed random seed 42 so every demo looks the same.</p>
-      <div class="slide-no">10</div>
-    </section>
-
-    <!-- 11 Railway steps -->
-    <section class="slide" data-t="rise" aria-label="Deployment steps">
-      <p class="eyebrow a up">Deployment on Railway</p>
-      <h2 class="a up" style="--d:.1s">GitHub push to live URL in eight steps</h2>
-      <div class="tl">
-        <div class="step a up" style="--d:.2s"><div class="n">STEP 1</div><h3>Connect repo</h3><p>Deploy from GitHub, branch <code>main</code></p></div>
-        <div class="step a up" style="--d:.35s"><div class="n">STEP 2</div><h3>Build</h3><p>Railpack reads <code>requirements.txt</code>, Python <code>3.12</code></p></div>
-        <div class="step a up" style="--d:.5s"><div class="n">STEP 3</div><h3>Add Postgres</h3><p>New → Database → PostgreSQL</p></div>
-        <div class="step a up" style="--d:.65s"><div class="n">STEP 4</div><h3>Link variable</h3><p><code>DATABASE_URL</code> on the app service</p></div>
-        <div class="step a up" style="--d:.8s"><div class="n">STEP 5</div><h3>Start</h3><p><code>python start.py</code> on <code>0.0.0.0:$PORT</code></p></div>
-        <div class="step a up" style="--d:.95s"><div class="n">STEP 6</div><h3>Health check</h3><p><code>/_stcore/health</code> must answer ok</p></div>
-        <div class="step a up" style="--d:1.1s"><div class="n">STEP 7</div><h3>Domain</h3><p>Generate a free <code>*.up.railway.app</code> URL</p></div>
-        <div class="step a up" style="--d:1.25s"><div class="n">STEP 8</div><h3>First run</h3><p>Tables created; sidebar shows PostgreSQL</p></div>
-      </div>
-      <div class="health a fade" style="--d:1.5s"><span class="led"></span>GET /_stcore/health → 200 ok · restart on failure, 5 retries</div>
-      <div class="slide-no">11</div>
-    </section>
-
-    <!-- 12 Variables -->
-    <section class="slide" data-t="wipe" aria-label="Environment variables">
-      <p class="eyebrow a up">Configuration</p>
-      <h2 class="a up" style="--d:.1s">Environment variables</h2>
-      <table class="vt">
-        <thead><tr class="a fade" style="--d:.15s"><th>Variable</th><th>Value</th><th>Status</th><th>Purpose</th></tr></thead>
-        <tbody>
-          <tr class="a left" style="--d:.3s"><td>DATABASE_URL</td><td class="val">${{Postgres.DATABASE_URL}}</td><td><span class="tag t-req">Required</span></td><td>Connects to PostgreSQL. Without it, SQLite is used and Railway wipes it on redeploy.</td></tr>
-          <tr class="a left" style="--d:.45s"><td>PORT</td><td class="val">set by Railway</td><td><span class="tag t-auto">Automatic</span></td><td>Port the app listens on; read by start.py</td></tr>
-          <tr class="a left" style="--d:.6s"><td>APP_PASSWORD</td><td class="val">any password</td><td><span class="tag t-opt">Optional</span></td><td>Adds a sign-in screen</td></tr>
-          <tr class="a left" style="--d:.75s"><td>DATA_DIR</td><td class="val">/data</td><td><span class="tag t-opt">Optional</span></td><td>SQLite folder when using a Railway volume</td></tr>
-        </tbody>
-      </table>
-      <p class="a up" style="--d:1s; margin-top:26px; font-size:17px">No secrets in the code: <span class="mono hi">.env.example</span> lists the names, <span class="mono hi">.gitignore</span> keeps <span class="mono hi">.env</span> and local data out of GitHub.</p>
-      <div class="slide-no">12</div>
+      <div class="slide-no">06</div>
     </section>
 
     <!-- 13 502 story -->
@@ -617,24 +505,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         </div>
       </div>
       <p class="a fade" style="--d:3.8s; margin-top:26px; font-size:17px">Also fixed: data loss on redeploy (moved to PostgreSQL) and slow database hangs (10-second connect timeout).</p>
-      <div class="slide-no">13</div>
-    </section>
-
-    <!-- 14 Testing -->
-    <section class="slide" data-t="blur" aria-label="Testing">
-      <p class="eyebrow a up">Testing</p>
-      <h2 class="a up" style="--d:.1s">What was verified</h2>
-      <div class="checks">
-        <div class="ck" style="--d:.2s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>PostgreSQL 16</h3><p>Load data, list, update status, backup</p></div></div>
-        <div class="ck" style="--d:.4s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>SQLite fallback</h3><p>Same functions with no DATABASE_URL</p></div></div>
-        <div class="ck" style="--d:.6s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>7 pages × 3 screen sizes</h3><p>Playwright: no errors, no sideways scroll</p></div></div>
-        <div class="ck" style="--d:.8s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>Create invoice in browser</h3><p>Grid entry, save, PDF download</p></div></div>
-        <div class="ck" style="--d:1s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>Invoice PDF layout</h3><p>Rendered and inspected a 3-item invoice</p></div></div>
-        <div class="ck" style="--d:1.2s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>Amazon import</h3><p>2 orders imported, 0 duplicates on re-import</p></div></div>
-        <div class="ck" style="--d:1.4s"><span class="box"><svg viewBox="0 0 20 20"><path pathLength="1" d="M4 10l4 4 8-9"/></svg></span><div><h3>Railway start command</h3><p>start.py on custom PORT, health check ok</p></div></div>
-        <div class="ck pending" style="--d:1.6s"><span class="box"></span><div><h3>Live DummyJSON fetch</h3><p>Blocked in the build sandbox; verify on Railway</p></div></div>
-      </div>
-      <div class="slide-no">14</div>
+      <div class="slide-no">07</div>
     </section>
 
     <!-- 15 Responsive -->
@@ -647,7 +518,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         <div class="dev tablet a up" style="--d:.7s"><div class="scr"><div class="sk"></div><div class="sk"></div><div class="sk g"></div><div class="sk"></div><div class="sk t"></div></div><div class="cap">tablet · 2 columns</div></div>
         <div class="dev phone a up" style="--d:1s"><div class="scr"><div class="sk"></div><div class="sk g"></div><div class="sk"></div><div class="sk t"></div></div><div class="cap">phone · ≤ 640 px</div></div>
       </div>
-      <div class="slide-no">15</div>
+      <div class="slide-no">08</div>
     </section>
 
     <!-- 16 Thanks -->
@@ -664,7 +535,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         <span class="chip a pop" style="--d:1.5s">Amazon SP-API connection</span>
       </div>
       <p class="a fade mono" style="--d:1.7s; margin-top:30px; font-size:14px">github.com/pats-speedlark/Automated-Invoicing-Expense-Tracker</p>
-      <div class="slide-no">16</div>
+      <div class="slide-no">09</div>
     </section>
 
   </div>
@@ -673,7 +544,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
 <div class="bar">
   <button id="prev" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg></button>
   <button id="next" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg></button>
-  <span class="count" id="count">1 / 16</span>
+  <span class="count" id="count">1 / 9</span>
   <div class="progress"><i id="prog"></i></div>
   <span class="keys">← → or Space · click cards to flip</span>
   <button id="fs" aria-label="Toggle fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
