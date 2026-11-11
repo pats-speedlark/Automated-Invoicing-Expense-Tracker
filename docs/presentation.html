@@ -140,6 +140,28 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
 .dk { font-family: var(--font-display); font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .dv { font-size: 20px; font-weight: 600; color: var(--fg); }
 
+
+/* dashboard screenshot slide */
+.shot-wrap { display: grid; grid-template-columns: 680px minmax(0, 1fr); gap: 44px; align-items: center; perspective: 1400px; }
+.browser { background: #ffffff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 24px 60px rgba(26,30,51,.16); }
+.active .a.tilt { animation-name: aTilt; animation-duration: 1.1s; }
+@keyframes aTilt { from { opacity: 0; transform: rotateX(18deg) rotateY(-14deg) translateY(40px) scale(.94); } to { opacity: 1; transform: none; } }
+.chrome { height: 34px; background: var(--panel-2); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 7px; padding: 0 14px; }
+.chrome i { width: 11px; height: 11px; border-radius: 50%; background: var(--line); }
+.chrome i:nth-child(1) { background: #f0a19a; } .chrome i:nth-child(2) { background: #f3cf7c; } .chrome i:nth-child(3) { background: #8fd3a8; }
+.chrome .url { margin-left: 14px; flex: 1; max-width: 340px; background: #ffffff; border: 1px solid var(--line); border-radius: 999px; font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); padding: 3px 14px; }
+.shot { position: relative; line-height: 0; }
+.shot img { width: 100%; height: auto; display: block; max-width: 100%; }
+.pin { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: var(--indigo); color: #ffffff; font: 700 14px/30px var(--font-display); text-align: center; box-shadow: 0 0 0 5px rgba(79,70,229,.22); }
+.active .pin { animation-name: aPop, pinPulse; animation-duration: .6s, 2s; animation-delay: calc(var(--d) + .25s), calc(var(--d) + 1s); animation-iteration-count: 1, infinite; animation-fill-mode: both, none; }
+@keyframes pinPulse { 0% { box-shadow: 0 0 0 5px rgba(79,70,229,.22); } 50% { box-shadow: 0 0 0 11px rgba(79,70,229,.06); } 100% { box-shadow: 0 0 0 5px rgba(79,70,229,.22); } }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.legend li { display: flex; gap: 14px; align-items: flex-start; }
+.legend b { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--indigo); color: #ffffff; font: 700 14px/30px var(--font-display); text-align: center; }
+.legend h3 { font-size: 18px; margin: 2px 0 2px; }
+.legend p { font-size: 14.5px; line-height: 1.4; }
+.shot-cap { margin-top: 16px; font-size: 13.5px; font-family: var(--font-mono); }
+
 /* grids and cards */
 .grid { display: grid; gap: 18px; }
 .g2 { grid-template-columns: 1fr 1fr; }
@@ -447,6 +469,34 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
       <div class="slide-no">04</div>
     </section>
 
+    <!-- Dashboard screenshot -->
+    <section class="slide" data-t="rise" aria-label="Dashboard screenshot">
+      <p class="eyebrow a up">The live app</p>
+      <h2 class="a up" style="--d:.1s; margin-bottom:22px">What the dashboard looks like</h2>
+      <div class="shot-wrap">
+        <div class="browser a tilt" style="--d:.25s">
+          <div class="chrome"><i></i><i></i><i></i><span class="url">your-app.up.railway.app</span></div>
+          <div class="shot">
+            <img src="dashboard.jpg" alt="Screenshot of the app dashboard with sidebar navigation, four summary cards, a 12-month cash-flow bar chart, an expenses-by-category donut chart and recent invoice tables" width="2160" height="1350">
+            <span class="pin a pop" style="--d:1s; left:14.5%; top:11%">1</span>
+            <span class="pin a pop" style="--d:1.2s; left:20.6%; top:20%">2</span>
+            <span class="pin a pop" style="--d:1.4s; left:20.6%; top:37%">3</span>
+            <span class="pin a pop" style="--d:1.6s; left:63%; top:37%">4</span>
+            <span class="pin a pop" style="--d:1.8s; left:20.6%; top:84%">5</span>
+          </div>
+        </div>
+        <ol class="legend">
+          <li class="a right" style="--d:1s"><b>1</b><div><h3>Sidebar menu</h3><p>Seven pages, grouped by task</p></div></li>
+          <li class="a right" style="--d:1.2s"><b>2</b><div><h3>Summary cards</h3><p>Income, expenses, outstanding and net profit</p></div></li>
+          <li class="a right" style="--d:1.4s"><b>3</b><div><h3>Cash flow</h3><p>Income vs expenses for 12 months</p></div></li>
+          <li class="a right" style="--d:1.6s"><b>4</b><div><h3>Spending split</h3><p>Expenses by category</p></div></li>
+          <li class="a right" style="--d:1.8s"><b>5</b><div><h3>Invoice tables</h3><p>Recent, overdue and due soon</p></div></li>
+        </ol>
+      </div>
+      <p class="shot-cap a fade" style="--d:2s">Screenshot of the running app with sample data loaded</p>
+      <div class="slide-no">05</div>
+    </section>
+
     <!-- 7 Invoice workflow -->
     <section class="slide" data-t="cube" aria-label="Invoice workflow">
       <p class="eyebrow a up">Invoice lifecycle</p>
@@ -462,7 +512,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         subtotal = Σ qty × price <span class="c">·</span> tax = Σ qty × price × tax% ÷ 100<br>
         total = subtotal + tax − discount <span class="c">  # discount capped so total ≥ 0</span>
       </div>
-      <div class="slide-no">05</div>
+      <div class="slide-no">06</div>
     </section>
 
     <!-- 9 Data sources -->
@@ -477,7 +527,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         <div class="card a up" style="--d:1s"><h3>3 · Save</h3><p style="font-size:15px">Through <span class="mono hi">db.py</span> into PostgreSQL</p><ul><li>IDs start with <span class="mono hl">sample-</span></li><li>Removable in one click</li><li>Offline generator if API is down</li></ul></div>
       </div>
       <div class="note a up" style="--d:1.3s"><b>Real Amazon data?</b> Amazon has no public API for customer data. The Selling Partner API returns only a seller's own orders and needs a registered developer app. So the app imports the <b>All Orders report</b> a seller downloads from Seller Central: each Amazon order becomes an invoice.</div>
-      <div class="slide-no">06</div>
+      <div class="slide-no">07</div>
     </section>
 
     <!-- 13 502 story -->
@@ -505,7 +555,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         </div>
       </div>
       <p class="a fade" style="--d:3.8s; margin-top:26px; font-size:17px">Also fixed: data loss on redeploy (moved to PostgreSQL) and slow database hangs (10-second connect timeout).</p>
-      <div class="slide-no">07</div>
+      <div class="slide-no">08</div>
     </section>
 
     <!-- 15 Responsive -->
@@ -518,7 +568,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         <div class="dev tablet a up" style="--d:.7s"><div class="scr"><div class="sk"></div><div class="sk"></div><div class="sk g"></div><div class="sk"></div><div class="sk t"></div></div><div class="cap">tablet · 2 columns</div></div>
         <div class="dev phone a up" style="--d:1s"><div class="scr"><div class="sk"></div><div class="sk g"></div><div class="sk"></div><div class="sk t"></div></div><div class="cap">phone · ≤ 640 px</div></div>
       </div>
-      <div class="slide-no">08</div>
+      <div class="slide-no">09</div>
     </section>
 
     <!-- 16 Thanks -->
@@ -535,7 +585,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
         <span class="chip a pop" style="--d:1.5s">Amazon SP-API connection</span>
       </div>
       <p class="a fade mono" style="--d:1.7s; margin-top:30px; font-size:14px">github.com/pats-speedlark/Automated-Invoicing-Expense-Tracker</p>
-      <div class="slide-no">09</div>
+      <div class="slide-no">10</div>
     </section>
 
   </div>
@@ -544,7 +594,7 @@ p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.55; }
 <div class="bar">
   <button id="prev" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg></button>
   <button id="next" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg></button>
-  <span class="count" id="count">1 / 9</span>
+  <span class="count" id="count">1 / 10</span>
   <div class="progress"><i id="prog"></i></div>
   <span class="keys">← → or Space · click cards to flip</span>
   <button id="fs" aria-label="Toggle fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
