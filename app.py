@@ -1,6 +1,6 @@
-"""Automated Invoicing & Expense Tracker - Streamlit app.
+"""Automated Invoicing & Expense Tracker - web app.
 
-Run locally:   streamlit run app.py
+Run locally:   python start.py
 Storage:       PostgreSQL when DATABASE_URL is set, otherwise SQLite (data/finance.db)
 """
 
@@ -31,6 +31,11 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* Hide framework branding / developer chrome (menu, deploy button, status, footer) */
+    #MainMenu, footer, [data-testid="stMainMenu"], [data-testid="stToolbarActions"],
+    [data-testid="stAppDeployButton"], [data-testid="stDecoration"], [data-testid="stStatusWidget"],
+    .stDeployButton, .viewerBadge_container__1QSob {display: none !important; visibility: hidden !important;}
+    header[data-testid="stHeader"] {background: transparent;}
     .block-container {padding-top: 2rem; padding-bottom: 3rem; max-width: 1400px;}
     [data-testid="stMetric"] {
         background: var(--secondary-background-color);

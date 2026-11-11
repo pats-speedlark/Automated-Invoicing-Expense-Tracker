@@ -1,6 +1,6 @@
 # 💰 Automated Invoicing & Expense Tracker
 
-A Streamlit app for small businesses and freelancers: customers, multi-line invoices with PDF export, expense tracking, profit & loss reports, and backups. Works on laptops, tablets and phones.
+A web app for small businesses and freelancers: customers, multi-line invoices with PDF export, expense tracking, profit & loss reports, and backups. Works on laptops, tablets and phones.
 
 ## Features
 
@@ -24,8 +24,10 @@ pip install -r requirements.txt
 ```
 
 ```bash
-streamlit run app.py
+python start.py
 ```
+
+Then open http://localhost:8501.
 
 To use PostgreSQL locally, set `DATABASE_URL=postgresql://user:pass@localhost:5432/dbname` before starting the app.
 
@@ -40,18 +42,19 @@ Without `DATABASE_URL` the app still runs on SQLite, but Railway wipes the disk 
 
 ### Why the earlier deploy didn't launch
 
-The repo had no start command, so Railway didn't know how to run Streamlit. Streamlit also has to listen on Railway's `$PORT` on `0.0.0.0`. `railway.json` and `Procfile` now run:
+The repo had no start command, so Railway didn't know how to run the app. The app also has to listen on Railway's `$PORT` on `0.0.0.0`. `railway.json` and `Procfile` now run:
 
 ```
-python start.py   # = streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
+python start.py   # serves the app on 0.0.0.0:$PORT
 ```
 
 ## Project structure
 
 | File | Purpose |
 |---|---|
-| `app.py` | Streamlit UI (pages, navigation, responsive CSS) |
+| `app.py` | Web UI (pages, navigation, responsive CSS) |
 | `db.py` | SQLAlchemy storage layer (PostgreSQL / SQLite), backup and restore |
+| `start.py` | Production entrypoint (reads `PORT`) |
 | `pdf_utils.py` | Invoice PDF generation (ReportLab) |
 | `sample_data.py` | DummyJSON sample dataset and the Amazon order-report importer |
 | `railway.json`, `Procfile`, `.python-version` | Deployment config |

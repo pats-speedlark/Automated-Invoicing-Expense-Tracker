@@ -8,6 +8,7 @@ gatherUsageStats = false
 
 [client]
 toolbarMode = "minimal"
+showSidebarNavigation = true
 
 [theme]
 primaryColor = "#4F46E5"
