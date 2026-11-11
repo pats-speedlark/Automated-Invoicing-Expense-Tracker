@@ -136,6 +136,8 @@ def get_engine() -> Engine:
     kwargs: dict[str, Any] = {"pool_pre_ping": True}
     if url.startswith("sqlite"):
         kwargs["connect_args"] = {"check_same_thread": False}
+    else:
+        kwargs["connect_args"] = {"connect_timeout": 10}
     engine = create_engine(url, **kwargs)
     metadata.create_all(engine)
     _seed_settings(engine)

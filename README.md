@@ -43,7 +43,7 @@ Without `DATABASE_URL` the app still runs on SQLite, but Railway wipes the disk 
 The repo had no start command, so Railway didn't know how to run Streamlit. Streamlit also has to listen on Railway's `$PORT` on `0.0.0.0`. `railway.json` and `Procfile` now run:
 
 ```
-streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true
+python start.py   # = streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
 ```
 
 ## Project structure

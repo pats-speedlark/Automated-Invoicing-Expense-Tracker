@@ -4,7 +4,7 @@
     "builder": "RAILPACK"
   },
   "deploy": {
-    "startCommand": "streamlit run app.py --server.port=${PORT:-8501} --server.address=0.0.0.0 --server.headless=true",
+    "startCommand": "python start.py",
     "healthcheckPath": "/_stcore/health",
     "healthcheckTimeout": 120,
     "restartPolicyType": "ON_FAILURE",
